@@ -341,6 +341,7 @@ static void process_received_ack(rlc_entity_am_t *entity, int sn)
 static void consider_retransmission(rlc_entity_am_t *entity,
     rlc_tx_pdu_segment_t *cur)
 {
+  LATSEQ_P("rlc.consider_retx--TODO", "::test1%u", 1);
   cur->retx_count++;
 
   /* let's report max RETX reached for all retx_count >= max_retx_threshold
@@ -431,6 +432,7 @@ static void process_received_nack(rlc_entity_am_t *entity, int sn,
     }
   }
   entity->ack_list = head.next;
+  LATSEQ_P("D rlc.nack_received--rlc.retx", "::sn%u.so_start%u.so_end%u", sn, so_start, so_end);
 }
 
 int tx_pdu_in_ack_list_full(rlc_tx_pdu_segment_t *pdu)

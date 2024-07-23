@@ -48,6 +48,7 @@
 
 #include "common/utils/LOG/log.h"
 #include "common/utils/time_manager/time_manager.h"
+#include "common/utils/LATSEQ/latseq.h"
 
 #include <executables/softmodem-common.h>
 /* these variables have to be defined before including ENB_APP/enb_paramdef.h and GNB_APP/gnb_paramdef.h */
@@ -469,6 +470,7 @@ static void rx_rf(RU_t *ru, int *frame, int *slot)
   }
 
   stop_meas(&ru->rx_fhaul);
+  LATSEQ_P("U phy.SOUTHend--phy.fft","::fm%u.sl%u", *frame, *slot);
 }
 
 static radio_tx_gpio_flag_t get_gpio_flags(RU_t *ru, int slot)
@@ -593,6 +595,7 @@ void tx_rf(RU_t *ru, int frame,int slot, uint64_t timestamp)
                                              siglen + sf_extension,
                                              nt,
                                              flags);
+  LATSEQ_P("D phy.tx_sample_out--phy.out", "::fm%u.sl%u", frame, slot);
   LOG_D(PHY,
         "[TXPATH] RU %d tx_rf, writing to TS %lu, %d.%d, unwrapped_frame %d, slot %d, flags %d, siglen+sf_extension %d, "
         "returned %d, E %f\n",
@@ -774,6 +777,8 @@ void ru_tx_func(void *param)
   if (ru->fh_north_asynch_in == NULL && ru->feptx_ofdm)
     ru->feptx_ofdm(ru, frame_tx, slot_tx);
 
+  LATSEQ_P("D phy.ifft--phy.tx_sample_out", "::fm%u.sl%u", frame_tx, slot_tx);
+
   if (ru->fh_north_asynch_in == NULL && ru->fh_south_out)
     ru->fh_south_out(ru, frame_tx, slot_tx, info->timestamp_tx);
   if (ru->fh_north_out)
@@ -940,6 +945,7 @@ void *ru_thread(void *param)
 
     // synchronization on input FH interface, acquire signals/data and block
     LOG_D(PHY,"[RU_thread] read data: frame_rx = %d, tti_rx = %d\n", frame, slot);
+    LATSEQ_P("U phy.SOUTHstart--phy.SOUTHend","::fm%u.sl%u", frame, slot);
 
     AssertFatal(ru->fh_south_in, "No fronthaul interface at south port");
     ru->fh_south_in(ru, &frame, &slot);
@@ -986,6 +992,7 @@ void *ru_thread(void *param)
         break; // nothing to wait for: we have to stop
       if (ru->feprx) {
         ru->feprx(ru,proc->tti_rx);
+        LATSEQ_P("U phy.fft--phy.prach_pucch","::fm%u.sl%u", frame, slot);
         LOG_D(NR_PHY, "Setting %d.%d (%d) to busy\n", proc->frame_rx, proc->tti_rx, proc->tti_rx % RU_RX_SLOT_DEPTH);
         //LOG_M("rxdata.m","rxs",ru->common.rxdata[0],1228800,1,1);
         LOG_D(PHY,"RU proc: frame_rx = %d, tti_rx = %d\n", proc->frame_rx, proc->tti_rx);

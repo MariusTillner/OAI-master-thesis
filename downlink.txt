@@ -1,0 +1,42 @@
+DOWNLINK
+
+###############
+#### SDAP #####
+###############
+sdap.pdu--pdcp.hdr
+
+
+###############
+#### PDCP #####
+###############
+pdcp.hdr--pdcp.int_ciph
+pdcp.int_ciph--rlc.buffer
+
+
+###############
+##### RLC #####
+###############
+rlc.buffer--rlc.seg
+rlc.seg--mac.handover
+				rlc.retx--TODO
+
+###############
+##### MAC #####
+###############
+mac.handover--mac.subhdr
+mac.subhdr--mac.dci		mac.subhdr--mac.retx
+				mac.retx--mac.dci
+mac.dci--phy.crc
+
+###############
+##### PHY #####
+###############
+phy.crc--phy.CB_seg
+phy.CB_seg--phy.ldpc
+phy.ldpc--phy.scrambled
+phy.scrambled--phy.modulated
+phy.modulated--phy.re_mapped
+phy.re_mapped--phy.rotated
+phy.rotated--phy.ifft
+phy.ifft--phy.tx_sample_out
+phy.tx_sample_out--phy.out

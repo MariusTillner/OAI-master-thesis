@@ -1,0 +1,46 @@
+UPLINK
+
+###############
+#### SDAP #####
+###############
+sdap.sdu--gtp.out
+
+
+###############
+#### PDCP #####
+###############
+pdcp.int_ciph_dec--sdap.sdu	pdcp.deliver_ooo--sdap.sdu		pdcp.deliver_reorder--sdap.sdu
+				pdcp.deliver--pdcp.deliver_ooo		pdcp.deliver--pdcp.deliver_reorder
+										
+										pdcp.int_ciph_dec--pdcp.discarded_rcvdsmallerdeliv
+
+pdcp.int_ciph_dec--pdpc.deliver
+
+pdcp.hdr_dec--pdcp.int_ciph_dec
+
+###############
+##### RLC #####
+###############
+rlc.reassembled--pdcp.hdr_dec
+rlc.dec--rlc.reassembled
+ 
+
+###############
+##### MAC #####
+###############
+mac.demuxed--rlc.dec
+
+
+###############
+##### PHY #####
+###############
+phy.rach_uci--mac.demuxed
+phy.srs--phy.rach_uci
+phy.TB_dec--phy.srs	phy.dec_fail--phy.prach_pucch
+phy.CB_dec--phy.TB_dec	phy.CB_dec--phy.dec_fail		phy.CB_dec--phy.retx_drop
+phy.symbol_proc--phy.CB_dec
+phy.CH_est--phy.symbol_proc
+phy.prach_pucch--phy.CH_est
+phy.fft--phy.prach_pucch
+phy.SOUTHend--phy.fft
+phy.SOUTHstart--phy.SOUTHend

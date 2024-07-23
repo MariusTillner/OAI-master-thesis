@@ -40,6 +40,7 @@
 #include <syscall.h>
 // #define DEBUG_ULSCH_DECODING
 // #define gNB_DEBUG_TRACE
+#include "common/utils/LATSEQ/latseq.h"
 
 #define OAI_UL_LDPC_MAX_NUM_LLR 27000 // 26112 // NR_LDPC_NCOL_BG1*NR_LDPC_ZMAX = 68*384
 // #define DEBUG_CRC
@@ -289,14 +290,22 @@ int nr_ulsch_decoding(PHY_VARS_gNB *phy_vars_gNB,
     uint32_t offset = 0;
     for (int r = 0; r < TB_parameters.C; r++) {
       nrLDPC_segment_decoding_parameters_t nrLDPC_segment_decoding_parameters = TB_parameters.segments[r];
+      int decode_iter = nrLDPC_segment_decoding_parameters.decode_iterations;
       // Copy c to b in case of decoding success
       if (nrLDPC_segment_decoding_parameters.decodeSuccess) {
         memcpy(harq_process->b + offset,
                harq_process->c[r],
                (harq_process->K >> 3) - (harq_process->F >> 3) - ((harq_process->C > 1) ? 3 : 0));
+        LATSEQ_P("U phy.CB_dec--phy.TB_dec","::fm%u.sl%u.hqpid%u.segment%u.rnti%u.iter%u", ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, ulsch->rnti, decode_iter);
       } else {
         LOG_D(PHY, "uplink segment error %d/%d\n", r, harq_process->C);
         LOG_D(PHY, "ULSCH %d in error\n", ULSCH_id);
+        if (harq_process->round == 3) {
+          LATSEQ_P("U phy.CB_dec--phy.retx_drop","::fm%u.sl%u.hqpid%u.segment%u.nbsegments%u.rnti%u.hqround%u.iter%u", ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, TB_parameters.C, ulsch->rnti, harq_process->round, decode_iter);
+        } else {
+          LATSEQ_P("U phy.CB_dec--phy.dec_fail","::fm%u.sl%u.hqpid%u.segment%u.nbsegments%u.rnti%u.hqround%u.iter%u", ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, TB_parameters.C, ulsch->rnti, harq_process->round, decode_iter);
+          LATSEQ_P("U phy.dec_fail--phy.prach_pucch","::fm%u.sl%u.hqpid%u.rnti%u", ulsch->frame, nr_tti_rx, ulsch->harq_pid, ulsch->rnti);
+        }
       }
       offset += ((harq_process->K >> 3) - (harq_process->F >> 3) - ((harq_process->C > 1) ? 3 : 0));
 

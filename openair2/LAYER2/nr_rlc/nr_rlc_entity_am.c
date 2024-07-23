@@ -29,6 +29,7 @@
 #include "LOG/log.h"
 #include "common/utils/time_stat.h"
 #include "common/utils/assertions.h"
+#include "common/utils/LATSEQ/latseq.h"
 
 /* for a given SDU/SDU segment, computes the corresponding PDU header size */
 static int compute_pdu_header_size(nr_rlc_entity_am_t *entity,
@@ -222,6 +223,7 @@ static void reassemble_and_deliver(nr_rlc_entity_am_t *entity, int sn)
     return;
 
   /* deliver */
+  LATSEQ_P("U rlc.reassembled--pdcp.hdr_dec", "::sn%u.rlcpacketsize%u", sn, so);
   entity->common.deliver_sdu(entity->common.deliver_sdu_data,
                              (nr_rlc_entity_t *)entity,
                              sdu, so);
@@ -803,6 +805,7 @@ void nr_rlc_entity_am_recv_pdu(nr_rlc_entity_t *_entity,
   }
 
   data_size = size - decoder.byte;
+  LATSEQ_P("U rlc.dec--rlc.reassembled", "::MRbuf%u.si%u.sn%u.so%u.rlcsegsize%u", buffer, si, sn, so, data_size);
 
   /* dicard PDU if no data */
   if (data_size <= 0) {
@@ -1657,6 +1660,7 @@ static int generate_retx_pdu(nr_rlc_entity_am_t *entity, char *buffer,
   entity->common.stats.txpdu_retx_pkts++;
   entity->common.stats.txpdu_retx_bytes += ret_size;
 
+  LATSEQ_P("D rlc.retx--mac.handover", "::sn%u.sdu_size%u.req_size%u.so%u.RMbuf%u", sdu->sdu->sn, sdu->size, size, sdu->so, buffer);
   return ret_size;
 //  return serialize_sdu(entity, sdu, buffer, size, p);
 }
@@ -1696,12 +1700,6 @@ static int generate_tx_pdu(nr_rlc_entity_am_t *entity, char *buffer, int size)
 
   /* update buffer status */
   entity->common.bstatus.tx_size -= pdu_size;
-
-  /* assign SN to SDU */
-  if (sdu->sdu->sn == -1) {
-    sdu->sdu->sn = entity->tx_next;
-    entity->tx_next = (entity->tx_next + 1) % entity->sn_modulus;
-  }
 
   /* segment if necessary */
   if (pdu_size > size) {
@@ -1750,6 +1748,7 @@ static int generate_tx_pdu(nr_rlc_entity_am_t *entity, char *buffer, int size)
     entity->force_poll = 0;
   }
   int ret_size = serialize_sdu(entity, sdu, buffer, size, p);
+  LATSEQ_P("D rlc.seg--mac.handover", "::rlcsegsize%u.Rbuf%u.sn%u.so%u.RMbuf%u", ret_size, sdu->sdu, sdu->sdu->sn, sdu->so, buffer);
 
   entity->common.stats.txpdu_pkts++;
   entity->common.stats.txpdu_bytes += ret_size;
@@ -1852,6 +1851,10 @@ void nr_rlc_entity_am_recv_sdu(nr_rlc_entity_t *_entity,
 
   sdu = nr_rlc_new_sdu(buffer, size, sdu_id);
 
+  /* assign SN to SDU, should move this into function nr_rlc_new_sdu()*/
+  sdu->sdu->sn = entity->tx_next;
+  entity->tx_next = (entity->tx_next + 1) % entity->sn_modulus;
+
   LOG_D(RLC, "Created new RLC SDU and append it to the RLC list \n");
 
   nr_rlc_sdu_segment_list_append(&entity->tx_list, &entity->tx_end, sdu);
@@ -1862,6 +1865,8 @@ void nr_rlc_entity_am_recv_sdu(nr_rlc_entity_t *_entity,
 
   if (entity->common.avg_time_is_on)
     sdu->sdu->time_of_arrival = time_average_now();
+
+  LATSEQ_P("D rlc.buffer--rlc.seg", "::PRbuf%u.Rbuf%u.sn%u.dl_bs%u", buffer, sdu->sdu, sdu->sdu->sn, entity->common.bstatus.tx_size);
 }
 
 /*************************************************************************/
