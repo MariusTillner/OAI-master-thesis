@@ -1860,13 +1860,13 @@ void nr_rlc_entity_am_recv_sdu(nr_rlc_entity_t *_entity,
   nr_rlc_sdu_segment_list_append(&entity->tx_list, &entity->tx_end, sdu);
 
   /* update buffer status */
-  entity->common.bstatus.tx_size += compute_pdu_header_size(entity, sdu)
-                                    + sdu->size;
+  int complete_size = compute_pdu_header_size(entity, sdu) + sdu->size;
+  entity->common.bstatus.tx_size += complete_size;
 
   if (entity->common.avg_time_is_on)
     sdu->sdu->time_of_arrival = time_average_now();
 
-  LATSEQ_P("D rlc.buffer--rlc.seg", "::PRbuf%u.Rbuf%u.sn%u.dl_bs%u", buffer, sdu->sdu, sdu->sdu->sn, entity->common.bstatus.tx_size);
+  LATSEQ_P("D rlc.buffer--rlc.seg", "::PRbuf%u.Rbuf%u.sn%u.dl_bs%u.rlcsize%u", buffer, sdu->sdu, sdu->sdu->sn, entity->common.bstatus.tx_size, complete_size);
 }
 
 /*************************************************************************/

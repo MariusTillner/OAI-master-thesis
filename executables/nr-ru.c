@@ -470,7 +470,7 @@ static void rx_rf(RU_t *ru, int *frame, int *slot)
   }
 
   stop_meas(&ru->rx_fhaul);
-  LATSEQ_P("U phy.SOUTHend--phy.fft","::fm%u.sl%u", *frame, *slot);
+  LATSEQ_P("U phy.SOUTHend--phy.fft","::fm%u.sl%u.IQsize%u", *frame, *slot, (samples_per_slot + sf_extension)*sizeof(c16_t));
 }
 
 static radio_tx_gpio_flag_t get_gpio_flags(RU_t *ru, int slot)
@@ -595,7 +595,7 @@ void tx_rf(RU_t *ru, int frame,int slot, uint64_t timestamp)
                                              siglen + sf_extension,
                                              nt,
                                              flags);
-  LATSEQ_P("D phy.tx_sample_out--phy.out", "::fm%u.sl%u", frame, slot);
+  LATSEQ_P("D phy.tx_sample_out--phy.out", "::fm%u.sl%u.IQsize%u", frame, slot, (siglen + sf_extension)*sizeof(c16_t));
   LOG_D(PHY,
         "[TXPATH] RU %d tx_rf, writing to TS %lu, %d.%d, unwrapped_frame %d, slot %d, flags %d, siglen+sf_extension %d, "
         "returned %d, E %f\n",

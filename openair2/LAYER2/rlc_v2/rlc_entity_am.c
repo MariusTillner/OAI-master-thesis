@@ -432,7 +432,6 @@ static void process_received_nack(rlc_entity_am_t *entity, int sn,
     }
   }
   entity->ack_list = head.next;
-  LATSEQ_P("D rlc.nack_received--rlc.retx", "::sn%u.so_start%u.so_end%u", sn, so_start, so_end);
 }
 
 int tx_pdu_in_ack_list_full(rlc_tx_pdu_segment_t *pdu)

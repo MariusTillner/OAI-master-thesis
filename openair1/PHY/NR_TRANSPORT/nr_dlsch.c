@@ -628,7 +628,7 @@ static int do_one_dlsch(unsigned char *input_ptr, PHY_VARS_gNB *gNB, NR_gNB_DLSC
     /// Modulation
     start_meas(dlsch_modulation_stats);
     nr_modulation(scrambled_output, encoded_length, Qm, (int16_t *)mod_symbs[codeWord]);
-    LATSEQ_P("D phy.modulated--phy.re_mapped", "::sl%u.qm%u.rnti%u", slot, Qm, rel15->rnti);
+    LATSEQ_P("D phy.modulated--phy.re_mapped.modulatedsize%u", "::sl%u.qm%u.rnti%u.modulatedsize%u", slot, Qm, rel15->rnti, encoded_length);
     stop_meas(dlsch_modulation_stats);
 #ifdef DEBUG_DLSCH
     printf("PDSCH Modulation: Qm %d(%d)\n", Qm, nb_re);

@@ -306,7 +306,7 @@ static int nr_pdcp_entity_process_sdu(nr_pdcp_entity_t *entity,
   entity->stats.txpdu_bytes += header_size + size + integrity_size;
   entity->stats.txpdu_sn = sn;
 
-  LATSEQ_P("D pdcp.int_ciph--rlc.buffer", "::sn%u.Pbuf%u.pdusessionid%u", sn, buf, entity->rb_id);
+  LATSEQ_P("D pdcp.int_ciph--rlc.buffer", "::sn%u.Pbuf%u.pdusessionid%u.pdcppdusize%u", sn, buf, entity->rb_id, header_size + size + integrity_size);
   return header_size + size + integrity_size;
 }
 
