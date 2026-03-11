@@ -470,7 +470,7 @@ static void rx_rf(RU_t *ru, int *frame, int *slot)
   }
 
   stop_meas(&ru->rx_fhaul);
-  LATSEQ_P("U phy.SOUTHend--phy.fft","::fm%u.sl%u.IQsize%u", *frame, *slot, (samples_per_slot + sf_extension)*sizeof(c16_t));
+  LATSEQ_P("U phy.SOUTHend--phy.fft","::fm%u.sl%u.IQsize%u", *frame, *slot, samples_per_slot*sizeof(c16_t));
 }
 
 static radio_tx_gpio_flag_t get_gpio_flags(RU_t *ru, int slot)
