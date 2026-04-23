@@ -1245,7 +1245,7 @@ int nr_rx_pusch_tp(PHY_VARS_gNB *gNB,
                              rel15_ul->ul_dmrs_symb_pos,
                              rel15_ul->rb_size);
 
-  LATSEQ_P("U phy.CH_est--phy.symbol_proc", "::fm%u.sl%u.hqpid%u.nbantrx%u.rnti%u.nblayers%u.nbsymbols%u", frame, slot, harq_pid, frame_parms->nb_antennas_rx, rel15_ul->rnti, rel15_ul->nrOfLayers, rel15_ul->nr_of_symbols);
+  LATSEQ_P("U phy.CH_est--phy.demodulated", "::fm%u.sl%u.hqpid%u.nbantrx%u.rnti%u.nblayers%u.nbsymbols%u", frame, slot, harq_pid, frame_parms->nb_antennas_rx, rel15_ul->rnti, rel15_ul->nrOfLayers, rel15_ul->nr_of_symbols);
   stop_meas(&gNB->ulsch_channel_estimation_stats);
 
   start_meas(&gNB->rx_pusch_init_stats);
@@ -1606,7 +1606,7 @@ int nr_rx_pusch_tp(PHY_VARS_gNB *gNB,
 #endif
 
   join_task_ans(&ans);
-  LATSEQ_P("U phy.symbol_proc--phy.CB_dec", "::fm%u.sl%u.hqpid%u.rnti%u.nbsymbols%u", frame, slot, harq_pid, rel15_ul->rnti, rel15_ul->nr_of_symbols);
+  LATSEQ_P("U phy.demodulated--phy.CB_dec", "::fm%u.sl%u.hqpid%u.rnti%u.nbsymbols%u", frame, slot, harq_pid, rel15_ul->rnti, rel15_ul->nr_of_symbols);
   stop_meas(&gNB->rx_pusch_symbol_processing_stats);
 
   // Copy the data to the scope. This cannot be performed in one call to gNBscopeCopy because the data is not contiguous in the

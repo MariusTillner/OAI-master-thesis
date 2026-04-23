@@ -9,8 +9,8 @@ sdap.sdu--gtp.out
 ###############
 #### PDCP #####
 ###############
-pdcp.int_ciph_dec--sdap.sdu	pdcp.deliver_ooo--sdap.sdu		pdcp.deliver_reorder--sdap.sdu
-				pdcp.deliver--pdcp.deliver_ooo		pdcp.deliver--pdcp.deliver_reorder
+pdcp.int_ciph_dec--sdap.sdu	    pdcp.deliver_ooo--sdap.sdu		pdcp.deliver_reorder--sdap.sdu
+				        pdcp.deliver--pdcp.deliver_ooo		pdcp.deliver--pdcp.deliver_reorder
 										
 										pdcp.int_ciph_dec--pdcp.discarded_rcvdsmallerdeliv
 
@@ -36,11 +36,66 @@ mac.demuxed--rlc.dec
 ###############
 phy.rach_uci--mac.demuxed
 phy.srs--phy.rach_uci
-phy.TB_dec--phy.srs	phy.dec_fail--phy.prach_pucch
-phy.CB_dec--phy.TB_dec	phy.CB_dec--phy.dec_fail		phy.CB_dec--phy.retx_drop
-phy.symbol_proc--phy.CB_dec
-phy.CH_est--phy.symbol_proc
+phy.TB_dec--phy.srs	                phy.dec_fail--phy.prach_pucch
+phy.CB_dec--phy.TB_dec	            phy.CB_dec--phy.dec_fail		    phy.CB_dec--phy.retx_drop
+phy.demodulated--phy.CB_dec
+phy.CH_est--phy.demodulated
 phy.prach_pucch--phy.CH_est
 phy.fft--phy.prach_pucch
 phy.SOUTHend--phy.fft
 phy.SOUTHstart--phy.SOUTHend
+
+
+
+
+################
+##### Flow #####
+################
+
+rx_func() { // nr-gnb.c
+    phy_procedures_gNB_uspec_rx() { // phy_procedures_nr_gNB.c
+        decode pucch
+        nr_rx_pusch_tp() { // nr_ulsch_demodulation.c
+            LATSEQ_P( U phy.pracch_pucch
+            Ch_estimation()
+            LATSEQ_P( U phy.CH_est
+            extract_rbs()
+            nr_scale_channel()
+            nr_channel_level()
+            nr_pusch_symbol_processing() { // nr_ulsch_demodulation.c
+                inner_rx() { // nr_ulsch_demodulation.c
+                    nr_ulsch_extract_rbs()
+                    nr_ulsch_channel_compensation()
+                    nr_ulsch_compute_ML_llr() or nr_ulsch_mmse_2layers() or nr_ulsch_compute_llr() 
+                }
+            }
+            LATSEQ_P( U phy.demodulated--
+            nr_ulsch_procedures() {  // phy_procedures_nr_gNB.c
+                nr_ulsch_decoding() { // nr_ulsch_decoding.c
+                    LATSEQ_P( U phy.CB_dec--
+                }
+                nr_fill_indication()
+                LATSEQ_P( U phy.TB_dec--
+                many srs procedure functions
+                LATSEQ_P( U phy.srs--
+            }
+        }
+    }
+    
+    NR_UL_indication() pointer on NR_UL_indication() { // NR_IF_Module.c function and pointer
+        handle_nr_uci()
+        LATSEQ_P( U phy.rach_uci--
+        handle_nr_ulsch() { // NR_IF_Module.c
+            nr_rx_sdu() {
+                _nr_rx_sdu() {
+                    nr_process_mac_pdu() {
+                        decode_ul_mac_sub_pdu_header()
+                        LATSEQ_P( U mac.demuxed--
+                        nr_mac_rlc_ind()
+                    }
+                }
+            }
+        }
+    }
+}
+

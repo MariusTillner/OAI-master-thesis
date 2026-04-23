@@ -341,7 +341,6 @@ static void process_received_ack(rlc_entity_am_t *entity, int sn)
 static void consider_retransmission(rlc_entity_am_t *entity,
     rlc_tx_pdu_segment_t *cur)
 {
-  LATSEQ_P("rlc.consider_retx--TODO", "::test1%u", 1);
   cur->retx_count++;
 
   /* let's report max RETX reached for all retx_count >= max_retx_threshold
