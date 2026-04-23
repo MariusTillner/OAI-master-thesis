@@ -598,6 +598,7 @@ process_retransmit_list_head:
           && so_overlap(cur_so_start, cur_so_end,
                         cur_retransmit_list->so,
                         cur_retransmit_list->so + cur_retransmit_list->size - 1)) {
+        LATSEQ_P("D rlc.retr_list-2--rlc.seg", "::sn%u.sdu_size%u.so%u.RMbuf%u", cur_retransmit_list->sdu->sn, cur_retransmit_list->size, cur_retransmit_list->so, cur_retransmit_list);
         new_retransmit_list->next = cur_retransmit_list;
         cur_retransmit_list = cur_retransmit_list->next;
         new_retransmit_list = new_retransmit_list->next;
@@ -606,6 +607,7 @@ process_retransmit_list_head:
         goto process_next_pdu;
       }
 
+      LATSEQ_P("D rlc.retr_list-3--rlc.seg", "::sn%u.sdu_size%u.so%u.RMbuf%u", cur_retransmit_list->sdu->sn, cur_retransmit_list->size, cur_retransmit_list->so, cur_retransmit_list);
       /* if current segment SN > current NACK, we can't classify it yet */
       cmp = sn_compare_tx(entity, cur_retransmit_list->sdu->sn, cur_nack_sn);
       if (cmp > 0
@@ -1944,6 +1946,7 @@ static void check_t_poll_retransmit(nr_rlc_entity_am_t *entity)
           cur->sdu->sn, cur->so, cur->size, cur->sdu->retx_count);
 
     /* put in retransmit list */
+    LATSEQ_P("D rlc.retr_list-1--rlc.seg", "::sn%u.sdu_size%u.so%u.RMbuf%u", cur->sdu->sn, cur->size, cur->so, cur);
     entity->retransmit_list = nr_rlc_tx_sdu_segment_list_add(entity,
                                   entity->retransmit_list, cur);
 
