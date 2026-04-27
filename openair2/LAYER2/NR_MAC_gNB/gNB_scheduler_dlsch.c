@@ -1319,7 +1319,7 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
                 lcid,
                 ndata,
                 bufEnd-buf-sizeof(NR_MAC_SUBHEADER_LONG));
-          LATSEQ_P("D mac.handover--mac.subhdr", "::RMbuf%u.fm%u.sl%u.fmretx%u.slretx%u.hqpid%u.rnti%u.1000xDL_BLER%d", (char *)buf+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, frame, slot, current_harq_pid, rnti, (int32_t)(sched_ctrl->dl_bler_stats.bler * 1000));
+          LATSEQ_P("D mac.handover--mac.subhdr", "::RMbuf%u.fm%u.sl%u.fmretx%u.slretx%u.hqpid%u.rnti%u.10xDL_BLER%%%d", (char *)buf+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, frame, slot, current_harq_pid, rnti, (int32_t)(sched_ctrl->dl_bler_stats.bler * 1000));
 
           if (len == 0)
             break;

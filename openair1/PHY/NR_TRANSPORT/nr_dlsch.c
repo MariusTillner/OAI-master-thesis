@@ -764,7 +764,7 @@ static int do_one_dlsch(unsigned char *input_ptr, PHY_VARS_gNB *gNB, NR_gNB_DLSC
     }
     stop_meas(&gNB->dlsch_precoding_stats);
   }
-  LATSEQ_P("D phy.re_mapped--phy.rotated", "::sl%u.nbanttx%u.rnti%u", slot, frame_parms->nb_antennas_tx, rel15->rnti);
+  LATSEQ_P("D phy.re_mapped--phy.rotated", "::sl%u.nbanttx%u.rnti%u.nbsymbols%u", slot, frame_parms->nb_antennas_tx, rel15->rnti, rel15->NrOfSymbols+1);
   stop_meas(&gNB->dlsch_pdsch_generation_stats);
   /* output and its parts for each dlsch should be aligned on 64 bytes (or 8 * 64 bits)
    * should remain a multiple of 8 * 64 with enough offset to fit each dlsch
