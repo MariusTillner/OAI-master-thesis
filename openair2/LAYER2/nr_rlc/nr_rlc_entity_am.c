@@ -351,6 +351,9 @@ static void process_control_pdu(nr_rlc_entity_am_t *entity,
   }
   ack_sn = nr_rlc_pdu_decoder_get_bits(&decoder, entity->sn_field_length); R(decoder);
   e1 = nr_rlc_pdu_decoder_get_bits(&decoder, 1); R(decoder);
+
+  LATSEQ_P("U rlc.status_full", "::ack_sn%u.has_nack%u", ack_sn, e1);
+
   /* r bits */
   if (entity->sn_field_length == 18) {
     nr_rlc_pdu_decoder_get_bits(&decoder, 1); R(decoder);
@@ -407,6 +410,7 @@ static void process_control_pdu(nr_rlc_entity_am_t *entity,
       /* check that current nack is > previous nack and <= ack
        * if not then reject the control PDU
        */
+      LATSEQ_P("U rlc.nack", "::sn%u.so_start%u.so_end%u", cur_nack_sn, cur_so_start, cur_so_end);
       if (prev_nack_sn != -1) {
         cmp = sn_compare_tx(entity, cur_nack_sn, prev_nack_sn);
         if (cmp < 0
@@ -944,6 +948,7 @@ static int serialize_sdu(nr_rlc_entity_am_t *entity,
                          nr_rlc_sdu_segment_t *sdu, char *buffer, int bufsize,
                          int p)
 {
+  LATSEQ_P("D rlc.ser--rlc.sdu", "::MRbuf%u.sn%u.so%u.sdusegsize%u.poll%u", buffer, sdu->sdu->sn, sdu->so, sdu->size, p);
   nr_rlc_pdu_encoder_t encoder;
 
   /* generate header */
@@ -1888,6 +1893,7 @@ static void check_t_poll_retransmit(nr_rlc_entity_am_t *entity)
 
   /* stop timer */
   entity->t_poll_retransmit_start = 0;
+  LATSEQ_P("U rlc.tpoll_exp", "::sn%u.t_poll%u", entity->wait_list ? entity->wait_list->sdu->sn : -1, entity->t_poll_retransmit);
 
   /* 38.322 5.3.3.4 says:
    *
