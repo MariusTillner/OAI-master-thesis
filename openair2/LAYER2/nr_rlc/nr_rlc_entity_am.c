@@ -411,7 +411,6 @@ static void process_control_pdu(nr_rlc_entity_am_t *entity,
       LATSEQ_P("D rlc.nack--rlc.retx", "::sn%u.so%u.so_end%d", cur_nack_sn, cur_so_start, cur_so_end);
       if (prev_nack_sn != -1) {
         cmp = sn_compare_tx(entity, cur_nack_sn, prev_nack_sn);
-        LATSEQ_P("D rlc.nack-test", "::sn%u.so%u.so_end%d.cmp%d", cur_nack_sn, cur_so_start, cur_so_end, cmp);
         if (cmp < 0
             || (cmp == 0
                 && (prev_so_end == -1
@@ -520,7 +519,6 @@ process_wait_list_head:
         if (cur_wait_list == entity->wait_end)
           end_wait_list = prev_wait_list;
         cur_wait_list->next = NULL;
-        LATSEQ_P("D rlc.wait_list--rlc.retx", "::sn%u.so%u.sdu_size%u", cur_wait_list->sdu->sn, cur_wait_list->so, cur_wait_list->size);
         new_retransmit_list->next = cur_wait_list;
         new_retransmit_list = cur_wait_list;
         /* increase retx count. Don't care about segmentation, so maybe we
@@ -602,7 +600,6 @@ process_retransmit_list_head:
           && so_overlap(cur_so_start, cur_so_end,
                         cur_retransmit_list->so,
                         cur_retransmit_list->so + cur_retransmit_list->size - 1)) {
-        LATSEQ_P("D rlc.retr_list_head--rlc.retx", "::sn%u.so%u.sdu_size%u", cur_retransmit_list->sdu->sn, cur_retransmit_list->so, cur_retransmit_list->size);
         new_retransmit_list->next = cur_retransmit_list;
         cur_retransmit_list = cur_retransmit_list->next;
         new_retransmit_list = new_retransmit_list->next;
