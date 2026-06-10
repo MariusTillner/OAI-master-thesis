@@ -96,7 +96,7 @@ static void nr_pdcp_entity_recv_pdu(nr_pdcp_entity_t *entity,
     header_size = LONG_PDCP_HEADER_SIZE;
   }
   entity->stats.rxpdu_sn = rcvd_sn;
-  LATSEQ_P("U pdcp.hdr_dec--pdcp.int_ciph_dec", "::sn%u.PSbuf%u.pdcppdusize%u.pdusessionid%u", rcvd_sn, buffer, size, entity->rb_id);
+  LATSEQ_P("U pdcp.hdr_dec--pdcp.int_ciph_dec", "::sn%u.pdcppdusize%u.pdusessionid%u", rcvd_sn, size, entity->rb_id);
 
   /* SRBs always have MAC-I, even if integrity is not active */
   if (entity->has_integrity || entity->type == NR_PDCP_SRB) {
@@ -306,7 +306,7 @@ static int nr_pdcp_entity_process_sdu(nr_pdcp_entity_t *entity,
   entity->stats.txpdu_bytes += header_size + size + integrity_size;
   entity->stats.txpdu_sn = sn;
 
-  LATSEQ_P("D pdcp.int_ciph--rlc.buffer", "::sn%u.Pbuf%u.pdusessionid%u.pdcppdusize%u", sn, buf, entity->rb_id, header_size + size + integrity_size);
+  LATSEQ_P("D pdcp.int_ciph--rlc.buffer", "::sn%u.pdusessionid%u.pdcppdusize%u", sn, entity->rb_id, header_size + size + integrity_size);
   return header_size + size + integrity_size;
 }
 
