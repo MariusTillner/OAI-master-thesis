@@ -223,7 +223,7 @@ static void reassemble_and_deliver(nr_rlc_entity_am_t *entity, int sn)
     return;
 
   /* deliver */
-  LATSEQ_P("U rlc.reassembled--pdcp.hdr_dec", "rlc_pkt_sz=%u::sn=%u", so, sn);
+  LATSEQ_P("U rlc.reassembled--pdcp.hdr_dec", "rlc_pkt_sz=%d::sn=%d", so, sn);
   entity->common.deliver_sdu(entity->common.deliver_sdu_data,
                              (nr_rlc_entity_t *)entity,
                              sdu, so);
@@ -408,7 +408,7 @@ static void process_control_pdu(nr_rlc_entity_am_t *entity,
       /* check that current nack is > previous nack and <= ack
        * if not then reject the control PDU
        */
-      LATSEQ_P("D rlc.nack--rlc.retx", "so_end=%d::sn=%u.so=%u", cur_so_end, cur_nack_sn, cur_so_start);
+      LATSEQ_P("D rlc.nack--rlc.retx", "so_end=%d::sn=%d.so=%d", cur_so_end, cur_nack_sn, cur_so_start);
       if (prev_nack_sn != -1) {
         cmp = sn_compare_tx(entity, cur_nack_sn, prev_nack_sn);
         if (cmp < 0
@@ -807,7 +807,7 @@ void nr_rlc_entity_am_recv_pdu(nr_rlc_entity_t *_entity,
   }
 
   data_size = size - decoder.byte;
-  LATSEQ_P("U rlc.dec--rlc.reassembled", "rlc_seg_sz=%u::mrbuf=%u.si=%u.sn=%u.so=%u", data_size, buffer, si, sn, so);
+  LATSEQ_P("U rlc.dec--rlc.reassembled", "rlc_seg_sz=%d::mrbuf=%d.si=%d.sn=%d.so=%d", data_size, buffer, si, sn, so);
 
   /* dicard PDU if no data */
   if (data_size <= 0) {
@@ -1662,7 +1662,7 @@ static int generate_retx_pdu(nr_rlc_entity_am_t *entity, char *buffer,
   entity->common.stats.txpdu_retx_pkts++;
   entity->common.stats.txpdu_retx_bytes += ret_size;
 
-  LATSEQ_P("D rlc.retx--mac.handover", "sdu_sz=%u.req_sz=%u.poll=%u.rlc_rtx_ct=%d.rlc_ref_ct=%d::sn=%u.so=%u.rmbuf=%x.rbuf=%x", sdu->size, size, p, sdu->sdu->retx_count, sdu->sdu->ref_count, sdu->sdu->sn, sdu->so, buffer, sdu);
+  LATSEQ_P("D rlc.retx--mac.handover", "sdu_sz=%d.req_sz=%d.poll=%d.rlc_rtx_ct=%d.rlc_ref_ct=%d::sn=%d.so=%d.rmbuf=%d.rbuf=%d", sdu->size, size, p, sdu->sdu->retx_count, sdu->sdu->ref_count, sdu->sdu->sn, sdu->so, buffer, sdu);
   return ret_size;
 //  return serialize_sdu(entity, sdu, buffer, size, p);
 }
@@ -1750,9 +1750,9 @@ static int generate_tx_pdu(nr_rlc_entity_am_t *entity, char *buffer, int size)
     entity->force_poll = 0;
   }
   int ret_size = serialize_sdu(entity, sdu, buffer, size, p);
-  LATSEQ_P("D rlc.seg--mac.handover", "rlc_seg_sz=%u.poll=%u::rbuf=%x.sn=%u.so=%u.rmbuf=%x", ret_size, p, sdu->sdu, sdu->sdu->sn, sdu->so, buffer);
-  LATSEQ_P("D rlc.seg--rlc.tpoll_exp", "poll=%u::rbuf=%u.sn=%u.so=%u", p, sdu->sdu, sdu->sdu->sn, sdu->so);
-  LATSEQ_P("D rlc.seg--rlc.nack", "poll=%u::rbuf=%u.sn=%u.so=%u", p, sdu->sdu, sdu->sdu->sn, sdu->so);
+  LATSEQ_P("D rlc.seg--mac.handover", "rlc_seg_sz=%d.poll=%d::rbuf=%d.sn=%d.so=%d.rmbuf=%d", ret_size, p, sdu->sdu, sdu->sdu->sn, sdu->so, buffer);
+  LATSEQ_P("D rlc.seg--rlc.tpoll_exp", "poll=%d::rbuf=%d.sn=%d.so=%d", p, sdu->sdu, sdu->sdu->sn, sdu->so);
+  LATSEQ_P("D rlc.seg--rlc.nack", "poll=%d::rbuf=%d.sn=%d.so=%d", p, sdu->sdu, sdu->sdu->sn, sdu->so);
 
   entity->common.stats.txpdu_pkts++;
   entity->common.stats.txpdu_bytes += ret_size;
@@ -1870,7 +1870,7 @@ void nr_rlc_entity_am_recv_sdu(nr_rlc_entity_t *_entity,
   if (entity->common.avg_time_is_on)
     sdu->sdu->time_of_arrival = time_average_now();
 
-  LATSEQ_P("D rlc.buffer--rlc.seg", "dl_bs=%u.rlc_pdu_sz=%u::prbuf=%u.rbuf=%x.sn=%u", entity->common.bstatus.tx_size, complete_size, buffer, sdu->sdu, sdu->sdu->sn);
+  LATSEQ_P("D rlc.buffer--rlc.seg", "dl_bs=%d.rlc_pdu_sz=%d::prbuf=%d.rbuf=%d.sn=%d", entity->common.bstatus.tx_size, complete_size, buffer, sdu->sdu, sdu->sdu->sn);
 }
 
 /*************************************************************************/
@@ -1948,7 +1948,7 @@ static void check_t_poll_retransmit(nr_rlc_entity_am_t *entity)
           cur->sdu->sn, cur->so, cur->size, cur->sdu->retx_count);
 
     /* put in retransmit list */
-    LATSEQ_P("D rlc.tpoll_exp--rlc.retx", "sdu_sz=%u::sn=%u.so=%u", cur->size, cur->sdu->sn, cur->so);
+    LATSEQ_P("D rlc.tpoll_exp--rlc.retx", "sdu_sz=%d::sn=%d.so=%d", cur->size, cur->sdu->sn, cur->so);
     entity->retransmit_list = nr_rlc_tx_sdu_segment_list_add(entity,
                                   entity->retransmit_list, cur);
 

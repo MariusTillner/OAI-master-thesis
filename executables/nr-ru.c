@@ -470,7 +470,7 @@ static void rx_rf(RU_t *ru, int *frame, int *slot)
   }
 
   stop_meas(&ru->rx_fhaul);
-  LATSEQ_P("U phy.rx_samples_in--phy.fft", "iq_sz=%u::fm=%u.sl=%u", samples_per_slot*sizeof(c16_t), *frame, *slot);
+  LATSEQ_P("U phy.rx_samples_in--phy.fft", "iq_sz=%d::fm=%d.sl=%d", samples_per_slot*sizeof(c16_t), *frame, *slot);
 }
 
 static radio_tx_gpio_flag_t get_gpio_flags(RU_t *ru, int slot)
@@ -595,7 +595,7 @@ void tx_rf(RU_t *ru, int frame,int slot, uint64_t timestamp)
                                              siglen + sf_extension,
                                              nt,
                                              flags);
-  LATSEQ_P("D phy.tx_samples_out--phy.out", "iq_sz=%u::fm=%u.sl=%u", (siglen + sf_extension)*sizeof(c16_t), frame, slot);
+  LATSEQ_P("D phy.tx_samples_out--phy.out", "iq_sz=%d::fm=%d.sl=%d", (siglen + sf_extension)*sizeof(c16_t), frame, slot);
   LOG_D(PHY,
         "[TXPATH] RU %d tx_rf, writing to TS %lu, %d.%d, unwrapped_frame %d, slot %d, flags %d, siglen+sf_extension %d, "
         "returned %d, E %f\n",
@@ -777,7 +777,7 @@ void ru_tx_func(void *param)
   if (ru->fh_north_asynch_in == NULL && ru->feptx_ofdm)
     ru->feptx_ofdm(ru, frame_tx, slot_tx);
 
-  LATSEQ_P("D phy.ifft--phy.tx_samples_out", "sl_ahead=%d::fm=%u.sl=%u", ru->sl_ahead, frame_tx, slot_tx);
+  LATSEQ_P("D phy.ifft--phy.tx_samples_out", "sl_ahead=%d::fm=%d.sl=%d", ru->sl_ahead, frame_tx, slot_tx);
 
   if (ru->fh_north_asynch_in == NULL && ru->fh_south_out)
     ru->fh_south_out(ru, frame_tx, slot_tx, info->timestamp_tx);
@@ -945,7 +945,7 @@ void *ru_thread(void *param)
 
     // synchronization on input FH interface, acquire signals/data and block
     LOG_D(PHY,"[RU_thread] read data: frame_rx = %d, tti_rx = %d\n", frame, slot);
-    LATSEQ_P("U phy.rx_samples_start--phy.rx_samples_in", "::fm=%u.sl=%u", frame, slot);
+    LATSEQ_P("U phy.rx_samples_start--phy.rx_samples_in", "::fm=%d.sl=%d", frame, slot);
 
     AssertFatal(ru->fh_south_in, "No fronthaul interface at south port");
     ru->fh_south_in(ru, &frame, &slot);
@@ -992,7 +992,7 @@ void *ru_thread(void *param)
         break; // nothing to wait for: we have to stop
       if (ru->feprx) {
         ru->feprx(ru,proc->tti_rx);
-        LATSEQ_P("U phy.fft--phy.prach_pucch", "::fm=%u.sl=%u", frame, slot);
+        LATSEQ_P("U phy.fft--phy.prach_pucch", "::fm=%d.sl=%d", frame, slot);
         LOG_D(NR_PHY, "Setting %d.%d (%d) to busy\n", proc->frame_rx, proc->tti_rx, proc->tti_rx % RU_RX_SLOT_DEPTH);
         //LOG_M("rxdata.m","rxs",ru->common.rxdata[0],1228800,1,1);
         LOG_D(PHY,"RU proc: frame_rx = %d, tti_rx = %d\n", proc->frame_rx, proc->tti_rx);

@@ -1242,7 +1242,7 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
     /* we do not have to do anything, since we do not require to get data
      * from RLC or encode MAC CEs. The TX_req structure is filled below
      * or copy data to FAPI structures */
-    LATSEQ_P("D mac.retx--mac.dci", "hqround=%u::fm=%u.sl=%u.hqpid=%u", harq->round, frame, slot, current_harq_pid);
+    LATSEQ_P("D mac.retx--mac.dci", "hqround=%d::fm=%d.sl=%d.hqpid=%d", harq->round, frame, slot, current_harq_pid);
     LOG_D(NR_MAC,
           "%d.%2d DL retransmission RNTI %04x HARQ PID %d round %d NDI %d\n",
           frame,
@@ -1319,7 +1319,7 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
                 lcid,
                 ndata,
                 bufEnd-buf-sizeof(NR_MAC_SUBHEADER_LONG));
-          LATSEQ_P("D mac.handover--mac.subhdr", "dl_bler_pct=%d.rbs=%u::rmbuf=%u.fm=%u.sl=%u.fm_rtx=%u.sl_rtx=%u.hqpid=%u.rnti=%u", (int32_t)(sched_ctrl->dl_bler_stats.bler * 100), sched_pdsch->rbSize, (char *)buf+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, frame, slot, current_harq_pid, rnti);
+          LATSEQ_P("D mac.handover--mac.subhdr", "dl_bler_pct=%d.rbs=%d::rmbuf=%d.fm=%d.sl=%d.fm_rtx=%d.sl_rtx=%d.hqpid=%d.rnti=%d", (int32_t)(sched_ctrl->dl_bler_stats.bler * 100), sched_pdsch->rbSize, (char *)buf+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, frame, slot, current_harq_pid, rnti);
 
           if (len == 0)
             break;
@@ -1333,8 +1333,8 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
           dlsch_total_bytes += len;
           lcid_bytes += len;
           sdus += 1;
-          LATSEQ_P("D mac.subhdr--mac.dci", "hqround=%u.mcs=%u.tbs=%u.mac_pdu_sz=%u::rmbuf=%u.fm=%u.sl=%u.hqpid=%u.rnti=%u", harq->round, sched_pdsch->mcs, sched_pdsch->tb_size, len+sizeof(NR_MAC_SUBHEADER_LONG), buf-len, frame, slot, current_harq_pid, rnti);
-          LATSEQ_P("D mac.subhdr--mac.retx", "mcs=%u.tbs=%u.mac_pdu_sz=%u::fm_rtx=%u.sl_rtx=%u.rmbuf=%x.hqpid=%u.rnti=%u", sched_pdsch->mcs, sched_pdsch->tb_size, len+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, buf-len, current_harq_pid, rnti);
+          LATSEQ_P("D mac.subhdr--mac.dci", "hqround=%d.mcs=%d.tbs=%d.mac_pdu_sz=%d::rmbuf=%d.fm=%d.sl=%d.hqpid=%d.rnti=%d", harq->round, sched_pdsch->mcs, sched_pdsch->tb_size, len+sizeof(NR_MAC_SUBHEADER_LONG), buf-len, frame, slot, current_harq_pid, rnti);
+          LATSEQ_P("D mac.subhdr--mac.retx", "mcs=%d.tbs=%d.mac_pdu_sz=%d::fm_rtx=%d.sl_rtx=%d.rmbuf=%d.hqpid=%d.rnti=%d", sched_pdsch->mcs, sched_pdsch->tb_size, len+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, buf-len, current_harq_pid, rnti);
         }
 
         UE->mac_stats.dl.lc_bytes[lcid] += lcid_bytes;
