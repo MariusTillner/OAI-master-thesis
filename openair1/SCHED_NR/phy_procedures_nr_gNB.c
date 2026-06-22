@@ -514,7 +514,7 @@ static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, boo
             ulsch_harq->TBS,
             ulsch->max_ldpc_iterations);
       nr_fill_indication(gNB, ulsch->frame, ulsch->slot, ULSCH_id, ulsch->harq_pid, 0, 0, crc, pdu);
-      LATSEQ_P("U phy.TB_dec--phy.srs", "::fm=%u.sl=%u.hqpid=%u.hqround=%u.rnti=%u.CBbits=%u.Fbits=%u.TBS=%u.nbsegments=%u", ulsch->frame, ulsch->slot, ulsch->harq_pid, ulsch_harq->round, pusch_pdu->rnti, ulsch_harq->K, ulsch_harq->F, ulsch_harq->TBS, ulsch_harq->C);
+      LATSEQ_P("U phy.TB_dec--phy.srs", "hqround=%u.cb_bits=%u.f_bits=%u.tbs=%u.seg_ct=%u::fm=%u.sl=%u.hqpid=%u.rnti=%u", ulsch_harq->round, ulsch_harq->K, ulsch_harq->F, ulsch_harq->TBS, ulsch_harq->C, ulsch->frame, ulsch->slot, ulsch->harq_pid, pusch_pdu->rnti);
       LOG_D(PHY, "ULSCH received ok \n");
       ulsch->active = false;
       ulsch_harq->round = 0;

@@ -196,7 +196,7 @@ int nr_dlsch_encoding(PHY_VARS_gNB *gNB,
                                         &TB_parameters->Z,
                                         &TB_parameters->F,
                                         TB_parameters->BG);
-    LATSEQ_P("D phy.CB_seg--phy.ldpc", "::fm=%u.sl=%u.nbseg=%u.CBbits=%u.Fbits=%u.rnti=%u", frame, slot, TB_parameters->C, TB_parameters->K, TB_parameters->F, rel15->rnti);
+    LATSEQ_P("D phy.CB_seg--phy.ldpc", "seg_ct=%u.cb_bits=%u.f_bits=%u::fm=%u.sl=%u.rnti=%u", TB_parameters->C, TB_parameters->K, TB_parameters->F, frame, slot, rel15->rnti);
     stop_meas(dlsch_segmentation_stats);
 
     if (TB_parameters->C > MAX_NUM_NR_DLSCH_SEGMENTS_PER_LAYER * rel15->nrOfLayers) {

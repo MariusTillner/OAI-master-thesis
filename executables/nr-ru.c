@@ -470,7 +470,7 @@ static void rx_rf(RU_t *ru, int *frame, int *slot)
   }
 
   stop_meas(&ru->rx_fhaul);
-  LATSEQ_P("U phy.rx_samples_in--phy.fft", "::fm=%u.sl=%u.IQsize=%u", *frame, *slot, samples_per_slot*sizeof(c16_t));
+  LATSEQ_P("U phy.rx_samples_in--phy.fft", "iq_sz=%u::fm=%u.sl=%u", samples_per_slot*sizeof(c16_t), *frame, *slot);
 }
 
 static radio_tx_gpio_flag_t get_gpio_flags(RU_t *ru, int slot)
@@ -595,7 +595,7 @@ void tx_rf(RU_t *ru, int frame,int slot, uint64_t timestamp)
                                              siglen + sf_extension,
                                              nt,
                                              flags);
-  LATSEQ_P("D phy.tx_samples_out--phy.out", "::fm=%u.sl=%u.IQsize=%u", frame, slot, (siglen + sf_extension)*sizeof(c16_t));
+  LATSEQ_P("D phy.tx_samples_out--phy.out", "iq_sz=%u::fm=%u.sl=%u", (siglen + sf_extension)*sizeof(c16_t), frame, slot);
   LOG_D(PHY,
         "[TXPATH] RU %d tx_rf, writing to TS %lu, %d.%d, unwrapped_frame %d, slot %d, flags %d, siglen+sf_extension %d, "
         "returned %d, E %f\n",
@@ -777,7 +777,7 @@ void ru_tx_func(void *param)
   if (ru->fh_north_asynch_in == NULL && ru->feptx_ofdm)
     ru->feptx_ofdm(ru, frame_tx, slot_tx);
 
-  LATSEQ_P("D phy.ifft--phy.tx_samples_out", "::fm=%u.sl=%u.sl_ahead=%d", frame_tx, slot_tx, ru->sl_ahead);
+  LATSEQ_P("D phy.ifft--phy.tx_samples_out", "sl_ahead=%d::fm=%u.sl=%u", ru->sl_ahead, frame_tx, slot_tx);
 
   if (ru->fh_north_asynch_in == NULL && ru->fh_south_out)
     ru->fh_south_out(ru, frame_tx, slot_tx, info->timestamp_tx);
