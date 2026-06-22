@@ -623,12 +623,12 @@ static int do_one_dlsch(unsigned char *input_ptr, PHY_VARS_gNB *gNB, NR_gNB_DLSC
     }
 #endif
 
-    LATSEQ_P("D phy.scrambled--phy.modulated", "::sl%u.rnti%u", slot, rel15->rnti);
+    LATSEQ_P("D phy.scrambled--phy.modulated", "::sl=%u.rnti=%u", slot, rel15->rnti);
     stop_meas(dlsch_scrambling_stats);
     /// Modulation
     start_meas(dlsch_modulation_stats);
     nr_modulation(scrambled_output, encoded_length, Qm, (int16_t *)mod_symbs[codeWord]);
-    LATSEQ_P("D phy.modulated--phy.re_mapped", "::sl%u.qm%u.rnti%u.modulatedsize%u", slot, Qm, rel15->rnti, encoded_length);
+    LATSEQ_P("D phy.modulated--phy.re_mapped", "::sl=%u.qm=%u.rnti=%u.modulatedsize=%u", slot, Qm, rel15->rnti, encoded_length);
     stop_meas(dlsch_modulation_stats);
 #ifdef DEBUG_DLSCH
     printf("PDSCH Modulation: Qm %d(%d)\n", Qm, nb_re);
@@ -764,7 +764,7 @@ static int do_one_dlsch(unsigned char *input_ptr, PHY_VARS_gNB *gNB, NR_gNB_DLSC
     }
     stop_meas(&gNB->dlsch_precoding_stats);
   }
-  LATSEQ_P("D phy.re_mapped--phy.rotated", "::sl%u.nbanttx%u.rnti%u.nbsymbols%u", slot, frame_parms->nb_antennas_tx, rel15->rnti, rel15->NrOfSymbols+1);
+  LATSEQ_P("D phy.re_mapped--phy.rotated", "::sl=%u.nbanttx=%u.rnti=%u.nbsymbols=%u", slot, frame_parms->nb_antennas_tx, rel15->rnti, rel15->NrOfSymbols+1);
   stop_meas(&gNB->dlsch_pdsch_generation_stats);
   /* output and its parts for each dlsch should be aligned on 64 bytes (or 8 * 64 bits)
    * should remain a multiple of 8 * 64 with enough offset to fit each dlsch
@@ -844,7 +844,7 @@ void nr_generate_pdsch(PHY_VARS_gNB *gNB, int n_dlsch, NR_gNB_DLSCH_t *dlsch_arr
       == -1) {
     return;
   }
-  LATSEQ_P("D phy.ldpc--phy.scrambled", "::fm%u.sl%u", frame, slot);
+  LATSEQ_P("D phy.ldpc--phy.scrambled", "::fm=%u.sl=%u", frame, slot);
   stop_meas(dlsch_encoding_stats);
 
   unsigned char *output_ptr = output;
