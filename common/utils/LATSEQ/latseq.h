@@ -46,6 +46,14 @@
 #define LATSEQ_MAX_STR_SIZE 128 // Length for filelog_name AND latseq fingerprint string size
 #define CHUNK_SIZE_ITEMS    16  // Size of chunk of ring buffer to read at data collector. 1 correspoding to full RR, RING_BUFFER_SIZE read all buffer by passage
 #define MAX_NB_THREAD       32  // Maximum number of instrumented threads expected
+#define LATSEQ_CHECK_OVERFLOW() \
+  do { \
+    uint8_t _idx = tls_latseq.th_latseq_id - 1; \
+    if ((tls_latseq.i_write_head - g_latseq.local_log_buffers.i_read_heads[_idx]) >= RING_BUFFER_SIZE) { \
+      tls_latseq.dropped_count++; \
+      return; \
+    } \
+  } while(0)
 
 /*--- MACRO ------------------------------------------------------------------*/
 #define LATSEQ_P3(p, f, i1) do {log_measure1(p, f, (int64_t)i1); } while(0)
@@ -84,6 +92,7 @@ typedef struct latseq_thread_data_t {
   uint8_t             th_latseq_id; //Identifier of pthread for registry
   latseq_element_t    log_buffer[RING_BUFFER_SIZE]; //log buffer, structure mutex-less
   unsigned int        i_write_head; // position of writer in the log_buffer (main thread)
+  unsigned int        dropped_count;
 } latseq_thread_data_t;
 
 //Registry of pointers to thread-specific struct latseq_data_thread
@@ -165,6 +174,7 @@ static __inline__ void log_measure1(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   //get reference on new element
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
@@ -184,6 +194,7 @@ static __inline__ void log_measure2(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
@@ -202,6 +213,7 @@ static __inline__ void log_measure3(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
@@ -221,6 +233,7 @@ static __inline__ void log_measure4(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
@@ -241,6 +254,7 @@ static __inline__ void log_measure5(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
@@ -262,6 +276,7 @@ static __inline__ void log_measure6(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
@@ -285,6 +300,7 @@ static __inline__ void log_measure7(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
@@ -309,6 +325,7 @@ static __inline__ void log_measure8(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
@@ -334,6 +351,7 @@ static __inline__ void log_measure9(const char * point, const char *fmt, int64_t
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
@@ -360,6 +378,7 @@ static __inline__ void log_measure10(const char * point, const char *fmt, int64_
       return;
     }
   }
+  LATSEQ_CHECK_OVERFLOW();
   latseq_element_t * e = &tls_latseq.log_buffer[tls_latseq.i_write_head%RING_BUFFER_SIZE];
   e->ts = l_rdtsc();
   e->point = point;
