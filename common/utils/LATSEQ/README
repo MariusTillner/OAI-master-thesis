@@ -17,7 +17,7 @@ Email : flavien.ronteixjacquet@orange.com, alexandre.ferrieux@orange.com
 1) Add a new LatSeq measure point in the code with
 #include "common/utils/LATSEQ/latseq.h"
 #if LATSEQ
-LATSEQ_P("D pdcp--rlc", "pdcp%d.rlc%d", 0, 1);  
+LATSEQ_P("D pdcp--rlc", "pdcp%ld.rlc%ld", 0, 1);  
 #endif
 
 where first argument is the direction, the second the observed segment and the third argument is a string of data_identifier

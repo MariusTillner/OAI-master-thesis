@@ -41,23 +41,23 @@
 
 /*--- DEFINE -----------------------------------------------------------------*/
 
-#define RING_BUFFER_SIZE    1024 // Number of fingerprints in Ring Buffer
+#define RING_BUFFER_SIZE    2048 // Number of fingerprints in Ring Buffer (Increased from 1024)
 #define NB_DATA_IDENTIFIERS 10  // to update according to distinct data identifier used in point
 #define LATSEQ_MAX_STR_SIZE 128 // Length for filelog_name AND latseq fingerprint string size
 #define CHUNK_SIZE_ITEMS    16  // Size of chunk of ring buffer to read at data collector. 1 correspoding to full RR, RING_BUFFER_SIZE read all buffer by passage
 #define MAX_NB_THREAD       32  // Maximum number of instrumented threads expected
 
 /*--- MACRO ------------------------------------------------------------------*/
-#define LATSEQ_P3(p, f, i1) do {log_measure1(p, f, (int32_t)i1); } while(0)
-#define LATSEQ_P4(p, f, i1, i2) do {log_measure2(p, f, (int32_t)i1, (int32_t)i2); } while(0)
-#define LATSEQ_P5(p, f, i1, i2, i3) do {log_measure3(p, f, (int32_t)i1, (int32_t)i2, (int32_t)i3); } while(0)
-#define LATSEQ_P6(p, f, i1, i2, i3, i4) do {log_measure4(p, f, (int32_t)i1, (int32_t)i2, (int32_t)i3, (int32_t)i4);} while(0)
-#define LATSEQ_P7(p, f, i1, i2, i3, i4, i5) do {log_measure5(p, f, (int32_t)i1, (int32_t)i2, (int32_t)i3, (int32_t)i4, (int32_t)i5); } while(0)
-#define LATSEQ_P8(p, f, i1, i2, i3, i4, i5, i6) do {log_measure6(p, f, (int32_t)i1, (int32_t)i2, (int32_t)i3, (int32_t)i4, (int32_t)i5, (int32_t)i6); } while(0)
-#define LATSEQ_P9(p, f, i1, i2, i3, i4, i5, i6, i7) do {log_measure7(p, f, (int32_t)i1, (int32_t)i2, (int32_t)i3, (int32_t)i4, (int32_t)i5, (int32_t)i6, (int32_t)i7); } while(0)
-#define LATSEQ_P10(p, f, i1, i2, i3, i4, i5, i6, i7, i8) do {log_measure8(p, f, (int32_t)i1, (int32_t)i2, (int32_t)i3, (int32_t)i4, (int32_t)i5, (int32_t)i6, (int32_t)i7, (int32_t)i8); } while(0)
-#define LATSEQ_P11(p, f, i1, i2, i3, i4, i5, i6, i7, i8, i9) do {log_measure9(p, f, (int32_t)i1, (int32_t)i2, (int32_t)i3, (int32_t)i4, (int32_t)i5, (int32_t)i6, (int32_t)i7, (int32_t)i8, (int32_t)i9); } while(0)
-#define LATSEQ_P12(p, f, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10) do {log_measure10(p, f, (int32_t)i1, (int32_t)i2, (int32_t)i3, (int32_t)i4, (int32_t)i5, (int32_t)i6, (int32_t)i7, (int32_t)i8, (int32_t)i9, (int32_t)i10); } while(0)
+#define LATSEQ_P3(p, f, i1) do {log_measure1(p, f, (int64_t)i1); } while(0)
+#define LATSEQ_P4(p, f, i1, i2) do {log_measure2(p, f, (int64_t)i1, (int64_t)i2); } while(0)
+#define LATSEQ_P5(p, f, i1, i2, i3) do {log_measure3(p, f, (int64_t)i1, (int64_t)i2, (int64_t)i3); } while(0)
+#define LATSEQ_P6(p, f, i1, i2, i3, i4) do {log_measure4(p, f, (int64_t)i1, (int64_t)i2, (int64_t)i3, (int64_t)i4);} while(0)
+#define LATSEQ_P7(p, f, i1, i2, i3, i4, i5) do {log_measure5(p, f, (int64_t)i1, (int64_t)i2, (int64_t)i3, (int64_t)i4, (int64_t)i5); } while(0)
+#define LATSEQ_P8(p, f, i1, i2, i3, i4, i5, i6) do {log_measure6(p, f, (int64_t)i1, (int64_t)i2, (int64_t)i3, (int64_t)i4, (int64_t)i5, (int64_t)i6); } while(0)
+#define LATSEQ_P9(p, f, i1, i2, i3, i4, i5, i6, i7) do {log_measure7(p, f, (int64_t)i1, (int64_t)i2, (int64_t)i3, (int64_t)i4, (int64_t)i5, (int64_t)i6, (int64_t)i7); } while(0)
+#define LATSEQ_P10(p, f, i1, i2, i3, i4, i5, i6, i7, i8) do {log_measure8(p, f, (int64_t)i1, (int64_t)i2, (int64_t)i3, (int64_t)i4, (int64_t)i5, (int64_t)i6, (int64_t)i7, (int64_t)i8); } while(0)
+#define LATSEQ_P11(p, f, i1, i2, i3, i4, i5, i6, i7, i8, i9) do {log_measure9(p, f, (int64_t)i1, (int64_t)i2, (int64_t)i3, (int64_t)i4, (int64_t)i5, (int64_t)i6, (int64_t)i7, (int64_t)i8, (int64_t)i9); } while(0)
+#define LATSEQ_P12(p, f, i1, i2, i3, i4, i5, i6, i7, i8, i9, i10) do {log_measure10(p, f, (int64_t)i1, (int64_t)i2, (int64_t)i3, (int64_t)i4, (int64_t)i5, (int64_t)i6, (int64_t)i7, (int64_t)i8, (int64_t)i9, (int64_t)i10); } while(0)
 #define GET_MACRO(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,NAME,...) NAME
 #define LATSEQ_P(...) GET_MACRO(__VA_ARGS__, LATSEQ_P12, LATSEQ_P11, LATSEQ_P10, LATSEQ_P9, LATSEQ_P8, LATSEQ_P7, LATSEQ_P6, LATSEQ_P5, LATSEQ_P4, LATSEQ_P3)(__VA_ARGS__)
 #define OCCUPANCY(w, r) (w - r)
@@ -70,7 +70,7 @@ typedef struct latseq_element_t {
   const char *        point;
   const char *        format;
   ushort              len_id; // Number data identifiers
-  int32_t            data_id[NB_DATA_IDENTIFIERS]; // values for the data identifier. What is the best type ?
+  int64_t             data_id[NB_DATA_IDENTIFIERS]; // values for the data identifier. What is the best type ?
 } latseq_element_t;
 
 // Statistics structures for latseq
@@ -156,7 +156,7 @@ uint64_t get_cpu_freq_cycles(void);
  * \param id identifier for the data pointed
  * \todo  measure latency introduced by this function
 */
-static __inline__ void log_measure1(const char * point, const char *fmt, int32_t i1)
+static __inline__ void log_measure1(const char * point, const char *fmt, int64_t i1)
 {
   //check if the oai thread is already registered
   if (tls_latseq.th_latseq_id == 0) {
@@ -176,7 +176,7 @@ static __inline__ void log_measure1(const char * point, const char *fmt, int32_t
   tls_latseq.i_write_head++;
 }
 
-static __inline__ void log_measure2(const char * point, const char *fmt, int32_t i1, int32_t i2)
+static __inline__ void log_measure2(const char * point, const char *fmt, int64_t i1, int64_t i2)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet
@@ -194,7 +194,7 @@ static __inline__ void log_measure2(const char * point, const char *fmt, int32_t
   tls_latseq.i_write_head++;
 }
 
-static __inline__ void log_measure3(const char * point, const char *fmt, int32_t i1, int32_t i2, int32_t i3)
+static __inline__ void log_measure3(const char * point, const char *fmt, int64_t i1, int64_t i2, int64_t i3)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet
@@ -213,7 +213,7 @@ static __inline__ void log_measure3(const char * point, const char *fmt, int32_t
   tls_latseq.i_write_head++;
 }
 
-static __inline__ void log_measure4(const char * point, const char *fmt, int32_t i1, int32_t i2, int32_t i3, int32_t i4)
+static __inline__ void log_measure4(const char * point, const char *fmt, int64_t i1, int64_t i2, int64_t i3, int64_t i4)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet
@@ -233,7 +233,7 @@ static __inline__ void log_measure4(const char * point, const char *fmt, int32_t
   tls_latseq.i_write_head++;
 }
 
-static __inline__ void log_measure5(const char * point, const char *fmt, int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5)
+static __inline__ void log_measure5(const char * point, const char *fmt, int64_t i1, int64_t i2, int64_t i3, int64_t i4, int64_t i5)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet
@@ -254,7 +254,7 @@ static __inline__ void log_measure5(const char * point, const char *fmt, int32_t
   tls_latseq.i_write_head++;
 }
 
-static __inline__ void log_measure6(const char * point, const char *fmt, int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5, int32_t i6)
+static __inline__ void log_measure6(const char * point, const char *fmt, int64_t i1, int64_t i2, int64_t i3, int64_t i4, int64_t i5, int64_t i6)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet
@@ -277,7 +277,7 @@ static __inline__ void log_measure6(const char * point, const char *fmt, int32_t
 }
 
 
-static __inline__ void log_measure7(const char * point, const char *fmt, int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5, int32_t i6, int32_t i7)
+static __inline__ void log_measure7(const char * point, const char *fmt, int64_t i1, int64_t i2, int64_t i3, int64_t i4, int64_t i5, int64_t i6, int64_t i7)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet
@@ -301,7 +301,7 @@ static __inline__ void log_measure7(const char * point, const char *fmt, int32_t
 }
 
 
-static __inline__ void log_measure8(const char * point, const char *fmt, int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5, int32_t i6, int32_t i7, int32_t i8)
+static __inline__ void log_measure8(const char * point, const char *fmt, int64_t i1, int64_t i2, int64_t i3, int64_t i4, int64_t i5, int64_t i6, int64_t i7, int64_t i8)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet
@@ -326,7 +326,7 @@ static __inline__ void log_measure8(const char * point, const char *fmt, int32_t
 }
 
 
-static __inline__ void log_measure9(const char * point, const char *fmt, int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5, int32_t i6, int32_t i7, int32_t i8, int32_t i9)
+static __inline__ void log_measure9(const char * point, const char *fmt, int64_t i1, int64_t i2, int64_t i3, int64_t i4, int64_t i5, int64_t i6, int64_t i7, int64_t i8, int64_t i9)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet
@@ -352,7 +352,7 @@ static __inline__ void log_measure9(const char * point, const char *fmt, int32_t
 }
 
 
-static __inline__ void log_measure10(const char * point, const char *fmt, int32_t i1, int32_t i2, int32_t i3, int32_t i4, int32_t i5, int32_t i6, int32_t i7, int32_t i8, int32_t i9, int32_t i10)
+static __inline__ void log_measure10(const char * point, const char *fmt, int64_t i1, int64_t i2, int64_t i3, int64_t i4, int64_t i5, int64_t i6, int64_t i7, int64_t i8, int64_t i9, int64_t i10)
 {
   if (tls_latseq.th_latseq_id == 0) {
     //is not initialized yet

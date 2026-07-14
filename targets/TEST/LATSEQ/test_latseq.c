@@ -72,10 +72,10 @@ int test_full()
   int num = 1;
   int i;
   for (i=0; i < num; i++){
-    LATSEQ_P("full3 D", "ip%d", 0);
+    LATSEQ_P("full3 D", "ip%ld", 0);
     //sleep(1);
     usleep(1);
-    LATSEQ_P("full2 D", "ip%d.mac%d", 0, 1);
+    LATSEQ_P("full2 D", "ip%ld.mac%ld", 0, 1);
   }
   printf("sizeof latseq_element : %ld\n", sizeof(struct latseq_element_t));
   oai_exit = 1;
@@ -93,9 +93,9 @@ void thread_test1(void)
   int i = 0;
   while(!oai_exit) {
     if (!i) {
-      LATSEQ_P("full3 D", "ip%d", 0);
+      LATSEQ_P("full3 D", "ip%ld", 0);
       usleep(11000);
-      LATSEQ_P("full2 D", "ip%d.mac%d", 0, 1);
+      LATSEQ_P("full2 D", "ip%ld.mac%ld", 0, 1);
       i = 1;
       continue;
     }
@@ -110,11 +110,11 @@ void thread_test2(void)
   int i = 0;
   while(!oai_exit) {
     if (!i) {
-      LATSEQ_P("full3 D", "ip%d", 1);
+      LATSEQ_P("full3 D", "ip%ld", 1);
       usleep(1000);
-      LATSEQ_P("full2 D", "ip%d.mac%d", 1, 1);
+      LATSEQ_P("full2 D", "ip%ld.mac%ld", 1, 1);
       usleep(9000);
-      LATSEQ_P("full1 D", "ip%d.mac%d.phy%d", 1, 1, 4);
+      LATSEQ_P("full1 D", "ip%ld.mac%ld.phy%ld", 1, 1, 4);
       i = 1;
       continue;
     }
@@ -164,10 +164,10 @@ int measure_log_measure()
   const uint32_t num_call = 1000000;
   for (int i = 0; i < num_call; i++)
   {
-    //LATSEQ_P("meas", "call.%d.%d.%d.%d.%d.%d.%d.%d.%d.%d", i,i,i,i,i,i,i,i,i,i);
-    LATSEQ_P("meas", "call.%d.%d.%d.%d.%d.%d.%d", i,i,i,i,i,i,i);
-    //LATSEQ_P("meas", "call.%d.%d.%d.%d.%d", i,i,i,i,i);
-    //LATSEQ_P("meas", "call.%d", i);
+    //LATSEQ_P("meas", "call.%ld.%ld.%ld.%ld.%ld.%ld.%ld.%ld.%ld.%ld", i,i,i,i,i,i,i,i,i,i);
+    LATSEQ_P("meas", "call.%ld.%ld.%ld.%ld.%ld.%ld.%ld", i,i,i,i,i,i,i);
+    //LATSEQ_P("meas", "call.%ld.%ld.%ld.%ld.%ld", i,i,i,i,i);
+    //LATSEQ_P("meas", "call.%ld", i);
     //usleep(1);
   }
 
@@ -206,7 +206,7 @@ int measure_log_n()
   int i;
   for (i = 0; i < num_call; i++)
   {
-    LATSEQ_P("meas1", "call.%d", i);
+    LATSEQ_P("meas1", "call.%ld", i);
   }
 #ifdef TEST_LATSEQ
   gettimeofday(&end, NULL);
@@ -216,7 +216,7 @@ int measure_log_n()
   //test n=2
   for (i = 0; i < num_call; i++)
   {
-    LATSEQ_P("meas2", "call.%d.%d", i,0);
+    LATSEQ_P("meas2", "call.%ld.%ld", i,0);
   }
 #ifdef TEST_LATSEQ
   gettimeofday(&end, NULL);
@@ -226,7 +226,7 @@ int measure_log_n()
   //test n=3
   for (i = 0; i < num_call; i++)
   {
-    LATSEQ_P("meas3", "call.%d.%d.%d", i,0,1);
+    LATSEQ_P("meas3", "call.%ld.%ld.%ld", i,0,1);
   }
 #ifdef TEST_LATSEQ
   gettimeofday(&end, NULL);
@@ -236,7 +236,7 @@ int measure_log_n()
   //test n=5
   for (i = 0; i < num_call; i++)
   {
-    LATSEQ_P("meas3", "call.%d.%d.%d.%d.%d", i,0,1,2,3);
+    LATSEQ_P("meas3", "call.%ld.%ld.%ld.%ld.%ld", i,0,1,2,3);
   }
 #ifdef TEST_LATSEQ
   gettimeofday(&end, NULL);
@@ -246,7 +246,7 @@ int measure_log_n()
   //test n=10 (max given by NB_DATA_IDENTIFIERS)
   for (i = 0; i < num_call; i++)
   {
-    LATSEQ_P("meas4", "call.%d.%d.%d.%d.%d.%d.%d.%d.%d.%d",i,0,1,2,3,4,5,7,8,9);
+    LATSEQ_P("meas4", "call.%ld.%ld.%ld.%ld.%ld.%ld.%ld.%ld.%ld.%ld",i,0,1,2,3,4,5,7,8,9);
   }
 #ifdef TEST_LATSEQ
   gettimeofday(&end, NULL);

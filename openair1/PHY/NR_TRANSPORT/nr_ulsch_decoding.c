@@ -296,15 +296,15 @@ int nr_ulsch_decoding(PHY_VARS_gNB *phy_vars_gNB,
         memcpy(harq_process->b + offset,
                harq_process->c[r],
                (harq_process->K >> 3) - (harq_process->F >> 3) - ((harq_process->C > 1) ? 3 : 0));
-        LATSEQ_P("U phy.CB_dec--phy.TB_dec", "iter=%d::fm=%d.sl=%d.hqpid=%d.seg=%d.rnti=%d", decode_iter, ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, ulsch->rnti);
+        LATSEQ_P("U phy.CB_dec--phy.TB_dec", "iter=%ld::fm=%ld.sl=%ld.hqpid=%ld.seg=%ld.rnti=%ld", decode_iter, ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, ulsch->rnti);
       } else {
         LOG_D(PHY, "uplink segment error %d/%d\n", r, harq_process->C);
         LOG_D(PHY, "ULSCH %d in error\n", ULSCH_id);
         if (harq_process->round == 3) {
-          LATSEQ_P("U phy.CB_dec--phy.retx_drop", "seg_ct=%d.hqround=%d.iter=%d::fm=%d.sl=%d.hqpid=%d.seg=%d.rnti=%d", TB_parameters.C, harq_process->round, decode_iter, ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, ulsch->rnti);
+          LATSEQ_P("U phy.CB_dec--phy.retx_drop", "seg_ct=%ld.hqround=%ld.iter=%ld::fm=%ld.sl=%ld.hqpid=%ld.seg=%ld.rnti=%ld", TB_parameters.C, harq_process->round, decode_iter, ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, ulsch->rnti);
         } else {
-          LATSEQ_P("U phy.CB_dec--phy.dec_fail", "seg_ct=%d.hqround=%d.iter=%d::fm=%d.sl=%d.hqpid=%d.seg=%d.rnti=%d", TB_parameters.C, harq_process->round, decode_iter, ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, ulsch->rnti);
-          LATSEQ_P("U phy.dec_fail--phy.prach_pucch", "::hqpid=%d.seg=%d.rnti=%d", ulsch->harq_pid, r, ulsch->rnti);
+          LATSEQ_P("U phy.CB_dec--phy.dec_fail", "seg_ct=%ld.hqround=%ld.iter=%ld::fm=%ld.sl=%ld.hqpid=%ld.seg=%ld.rnti=%ld", TB_parameters.C, harq_process->round, decode_iter, ulsch->frame, nr_tti_rx, ulsch->harq_pid, r, ulsch->rnti);
+          LATSEQ_P("U phy.dec_fail--phy.prach_pucch", "::hqpid=%ld.seg=%ld.rnti=%ld", ulsch->harq_pid, r, ulsch->rnti);
         }
       }
       offset += ((harq_process->K >> 3) - (harq_process->F >> 3) - ((harq_process->C > 1) ? 3 : 0));

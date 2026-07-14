@@ -205,7 +205,7 @@ static int write_latseq_entry(void)
   free(tmps);
   // cleanup buffer element
   e->ts = 0;
-  memset(e->data_id, 0, (sizeof(uint32_t) * e->len_id));
+  memset(e->data_id, 0, (sizeof(int64_t) * e->len_id));
   e->len_id = 0;
   
   //Update read_head for the current read_ith_thread
