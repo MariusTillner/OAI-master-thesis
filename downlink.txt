@@ -40,3 +40,37 @@ phy.re_mapped--phy.rotated
 phy.rotated--phy.ifft
 phy.ifft--phy.tx_sample_out
 phy.tx_sample_out--phy.out
+
+
+
+######################################################################
+
+// nr-gnb.c    
+tx_func ()
+    ifi->NR_slot_indication(&ind, &sched_response);
+        //NR_IF_module.c
+        run_scheduler_monolithic () // gNB_dlsch_ulsch_scheduler
+        
+        // gNB_schedulder.c
+        gNB_dlsch_ulsch_scheduler ()
+        
+            // gNB_scheduler_dlsch.c
+            nr_schedule_ue_spec ()
+                nr_dlsch_preprocessor () // gNB_mac->pre_processor_dl(gNB_mac, &pdsch);
+                    pf_dl ()
+                        ...
+                        post_process_dlsch ()
+                            ...
+                            mac.subhdr--mac.dci
+                            mac.subhdr--mac.retx
+        
+
+    // phy_procedures_nr_gNB.c
+    phy_procedures_gNB_TX ()
+        mac.dci--phy.crc
+            
+            
+            
+            
+            
+            

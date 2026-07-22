@@ -313,7 +313,7 @@ void phy_procedures_gNB_TX(PHY_VARS_gNB *gNB,
  
   if (num_pdsch > 0) {
     LOG_D(PHY, "PDSCH generation started (%d) in frame %d.%d\n", num_pdsch, frame, slot);
-    LATSEQ_P("D mac.dci--phy.crc", "::fm=%ld.sl=%ld.hqpid=%ld", frame, slot, current_harq_pid);
+    LATSEQ_P("D mac.dci--phy.crc", "::fm=%ld.sl=%ld.hqpid=%ld", frame, slot, -100);
     nr_generate_pdsch(gNB, num_pdsch, gNB->dlsch, frame, slot);
   }
 
