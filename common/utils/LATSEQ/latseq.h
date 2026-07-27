@@ -41,7 +41,7 @@
 
 /*--- DEFINE -----------------------------------------------------------------*/
 
-#define RING_BUFFER_SIZE    2048 // Number of fingerprints in Ring Buffer (Increased from 1024)
+#define RING_BUFFER_SIZE    4096 // Number of fingerprints in Ring Buffer (Increased from 1024)
 #define NB_DATA_IDENTIFIERS 10  // to update according to distinct data identifier used in point
 #define LATSEQ_MAX_STR_SIZE 128 // Length for filelog_name AND latseq fingerprint string size
 #define CHUNK_SIZE_ITEMS    16  // Size of chunk of ring buffer to read at data collector. 1 correspoding to full RR, RING_BUFFER_SIZE read all buffer by passage
