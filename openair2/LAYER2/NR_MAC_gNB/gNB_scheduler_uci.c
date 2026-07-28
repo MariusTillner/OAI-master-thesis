@@ -992,7 +992,6 @@ void handle_nr_uci_pucch_2_3_4(module_id_t mod_id, frame_t frame, slot_t slot, c
       const int8_t pid = sched_ctrl->feedback_dl_harq.head;
       remove_front_nr_list(&sched_ctrl->feedback_dl_harq);
       LOG_D(NR_MAC,"%4d.%2d bit %d pid %d ack/nack %d\n",frame, slot, harq_bit, pid, acknack);
-      LATSEQ_P("DU mac.uci-harq--TODO", "::rnti=%ld.harqpid=%ld.fm=%ld.sl=%ld.acknack=%ld", UE->rnti, pid, frame, slot, acknack);
       // TCI state switch occurs at the first slot that is after slot n_+ T_HARQ + 3N_sf_slot (8.10.3 of 38.133)
       bool success = uci_234->harq.harq_crc != 1 && acknack;
       if (success && harq->start_tci_timer) {

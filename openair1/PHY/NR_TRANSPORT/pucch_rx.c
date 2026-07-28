@@ -404,7 +404,6 @@ void nr_decode_pucch0(PHY_VARS_gNB *gNB,
   uci_pdu->ul_cqi = cqi;
   uci_pdu->timing_advance = 0xffff; // currently not valid
   uci_pdu->rssi = 1280 - (10 * dB_fixed(32767 * 32767) - dB_fixed_times10(signal_energy_ant0));
-  LATSEQ_P("DU mac.pucch0_dec--TODO", "::rnti=%ld.fm=%ld.sl=%ld.snr10=%ld.cqi=%ld.rssi=%ld", uci_pdu->rnti, frame, slot, SNRtimes10, uci_pdu->ul_cqi, uci_pdu->rssi);
 
   if (pucch_pdu->bit_len_harq==0) {
     uci_pdu->sr.sr_confidence_level = SNRtimes10 < gNB->pucch0_thres;
@@ -421,7 +420,6 @@ void nr_decode_pucch0(PHY_VARS_gNB *gNB,
     uci_pdu->harq.num_harq = 1;
     uci_pdu->harq.harq_confidence_level = no_conf;
     uci_pdu->harq.harq_list[0].harq_value = !(index&0x01);
-    LATSEQ_P("DU mac.pucch0_dec_bitlen1--TODO", "::rnti=%ld.fm=%ld.sl=%ld.snr10=%ld.cqi=%ld.rssi=%ld.harq_value=%ld.harq_confidence_level=%ld", uci_pdu->rnti, frame, slot, SNRtimes10, uci_pdu->ul_cqi, uci_pdu->rssi, uci_pdu->harq.harq_list[0].harq_value, uci_pdu->harq.harq_confidence_level);
     LOG_D(PHY,
           "[DLSCH/PDSCH/PUCCH] %d.%d HARQ %s with confidence level %s xrt_mag "
           "%d xrt_mag_next %d pucch_power_dBtimes10 %d n0 %d "
@@ -458,7 +456,6 @@ void nr_decode_pucch0(PHY_VARS_gNB *gNB,
 
     uci_pdu->harq.harq_list[1].harq_value = !(index&0x01);
     uci_pdu->harq.harq_list[0].harq_value = !((index>>1)&0x01);
-    LATSEQ_P("DU mac.pucch0_dec_bitlen2--TODO", "::rnti=%ld.fm=%ld.sl=%ld.snr10=%ld.cqi=%ld.rssi=%ld.harq_value1=%ld.harq_value0=%ld.harq_confidence_level=%ld", uci_pdu->rnti, frame, slot, SNRtimes10, uci_pdu->ul_cqi, uci_pdu->rssi, uci_pdu->harq.harq_list[1].harq_value, uci_pdu->harq.harq_list[0].harq_value, uci_pdu->harq.harq_confidence_level);
     LOG_D(PHY,
           "[DLSCH/PDSCH/PUCCH] %d.%d HARQ values (%s, %s) with confidence level %s, xrt_mag %d xrt_mag_next %d pucch_power_dBtimes10 %d n0 %d (%d,%d) "
           "pucch0_thres %d, cqi %d, SNRtimes10 %d\n",
