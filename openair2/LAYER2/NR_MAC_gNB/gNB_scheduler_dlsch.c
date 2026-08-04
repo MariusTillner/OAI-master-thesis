@@ -1243,6 +1243,7 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
      * from RLC or encode MAC CEs. The TX_req structure is filled below
      * or copy data to FAPI structures */
     LATSEQ_P("D mac.retx--mac.dci", "hqround=%ld.tbs=%ld::hqpid=%ld.tbsbuf=%ld.dummy=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, 0);
+    LATSEQ_P("D mac.retx--mac.retx", "hqround=%ld.tbs=%ld::hqpid=%ld.tbsbuf=%ld.dummy=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, 0);
     LOG_D(NR_MAC,
           "%d.%2d DL retransmission RNTI %04x HARQ PID %d round %d NDI %d\n",
           frame,
