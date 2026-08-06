@@ -535,7 +535,11 @@ static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, boo
             ulsch_harq->ulsch_pdu.rb_size,
             ulsch_harq->TBS);
       nr_fill_indication(gNB, ulsch->frame, ulsch->slot, ULSCH_id, ulsch->harq_pid, 1, 0, crc, pdu);
-      LATSEQ_P("U phy.TB_dec--phy.prach_pucch", "crc_valid=%ld.hqround=%ld.cb_bits=%ld.f_bits=%ld.tbs=%ld.seg_ct=%ld::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", crc_valid, ulsch_harq->round, ulsch_harq->K, ulsch_harq->F, ulsch_harq->TBS, ulsch_harq->C, ulsch->frame, ulsch->slot, ulsch->harq_pid, pusch_pdu->rnti);
+      if (ulsch_harq->round == 3) {
+        LATSEQ_P("U phy.TB_dec--phy.TB_drop", "crc_valid=%ld.hqround=%ld.cb_bits=%ld.f_bits=%ld.tbs=%ld.seg_ct=%ld::hqpid=%ld.rnti=%ld", crc_valid, ulsch_harq->round, ulsch_harq->K, ulsch_harq->F, ulsch_harq->TBS, ulsch_harq->C, ulsch->harq_pid, pusch_pdu->rnti);
+      } else {
+        LATSEQ_P("U phy.TB_dec--phy.prach_pucch", "crc_valid=%ld.hqround=%ld.cb_bits=%ld.f_bits=%ld.tbs=%ld.seg_ct=%ld::hqpid=%ld.rnti=%ld.hqround_retx=%ld", crc_valid, ulsch_harq->round, ulsch_harq->K, ulsch_harq->F, ulsch_harq->TBS, ulsch_harq->C, ulsch->harq_pid, pusch_pdu->rnti, ulsch_harq->round + 1);
+      }
       gNBdumpScopeData(gNB, ulsch->slot, ulsch->frame, "ULSCH_NACK");
       ulsch->handled = 1;
       LOG_D(PHY, "ULSCH %d in error\n",ULSCH_id);

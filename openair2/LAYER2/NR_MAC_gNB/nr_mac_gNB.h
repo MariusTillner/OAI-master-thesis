@@ -517,6 +517,9 @@ typedef struct NR_UE_harq {
   bool start_tci_timer;
   /// sched_pdsch keeps information on MCS etc used for the initial transmission
   NR_sched_pdsch_t sched_pdsch;
+
+  // transport block identifier, used to identify the TB in the HARQ process
+  int64_t tb_id;
 } NR_UE_harq_t;
 
 //! fixme : need to enhace for the multiple TB CQI report
@@ -1010,6 +1013,9 @@ typedef struct gNB_MAC_INST_s {
 
   dlul_mac_stats_t mac_stats;
   uint64_t num_scheduled_prach_rx;
+
+  // global TB identifier for HARQ processes, incremented for each new TB
+  int64_t global_tb_id;
 } gNB_MAC_INST;
 
 #endif /*__LAYER2_NR_MAC_GNB_H__ */
