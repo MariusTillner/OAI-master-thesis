@@ -421,6 +421,9 @@ void init_gNB()
     // Init module ID
     gNB->Mod_id = inst;
 
+    // Init transport block counter
+    gNB->global_ul_tb_id = 0;
+
     // Register MAC interface module
     AssertFatal((gNB->if_inst = NR_IF_Module_init(inst)) != NULL, "Cannot register interface");
 

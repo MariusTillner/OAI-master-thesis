@@ -155,6 +155,8 @@ typedef struct {
   /// Last index of LLR buffer that contains information.
   /// Used for computing LDPC decoder R
   int llrLen;
+  /// Unique identifier of this Transport Block
+  uint64_t tb_id;
   //////////////////////////////////////////////////////////////
 } NR_UL_gNB_HARQ_t;
 
@@ -485,6 +487,7 @@ typedef struct PHY_VARS_gNB_s {
   pthread_t L1_tx_thread;
   int L1_tx_thread_core;
   void *scopeData;
+  uint64_t global_ul_tb_id; /* Global monotic counter for UL TBs */
 } PHY_VARS_gNB;
 
 struct puschSymbolReqId {

@@ -419,6 +419,9 @@ static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, boo
     NR_gNB_ULSCH_t *ulsch = &gNB->ulsch[ULSCH_id];
     NR_gNB_PUSCH *pusch = &gNB->pusch_vars[ULSCH_id];
     NR_UL_gNB_HARQ_t *ulsch_harq = ulsch->harq_process;
+    if (ulsch_harq->round == 0) {
+      ulsch_harq->tb_id = gNB->global_ul_tb_id++;
+    }
     nfapi_nr_pusch_pdu_t *pusch_pdu = &ulsch_harq->ulsch_pdu;
 
     bool crc_valid = false;
@@ -514,7 +517,7 @@ static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, boo
             ulsch_harq->TBS,
             ulsch->max_ldpc_iterations);
       nr_fill_indication(gNB, ulsch->frame, ulsch->slot, ULSCH_id, ulsch->harq_pid, 0, 0, crc, pdu);
-      LATSEQ_P("U phy.TB_dec--phy.srs", "crc_valid=%ld.hqround=%ld.tbs=%ld.TB_seg_ct=%ld::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld.tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->C, ulsch->frame, ulsch->slot, ulsch->harq_pid, pusch_pdu->rnti, UL_INFO->rx_ind.number_of_pdus);
+      LATSEQ_P("U phy.TB_dec--phy.srs", "crc_valid=%ld.hqround=%ld.tbs=%ld.TB_seg_ct=%ld::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld.tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->C, ulsch->frame, ulsch->slot, ulsch->harq_pid, pusch_pdu->rnti, ulsch_harq->tb_id);
       LOG_D(PHY, "ULSCH received ok \n");
       ulsch->active = false;
       ulsch_harq->round = 0;
@@ -536,9 +539,9 @@ static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, boo
             ulsch_harq->TBS);
       nr_fill_indication(gNB, ulsch->frame, ulsch->slot, ULSCH_id, ulsch->harq_pid, 1, 0, crc, pdu);
       if (ulsch_harq->round == 3) {
-        LATSEQ_P("U phy.TB_dec--phy.TB_drop", "crc_valid=%ld.hqround=%ld.tbs=%ld.TB_seg_ct=%ld::hqpid=%ld.rnti=%ld.tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->C, ulsch->harq_pid, pusch_pdu->rnti, UL_INFO->rx_ind.number_of_pdus);
+        LATSEQ_P("U phy.TB_dec--phy.TB_drop", "crc_valid=%ld.hqround=%ld.tbs=%ld.TB_seg_ct=%ld::hqpid=%ld.rnti=%ld.tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->C, ulsch->harq_pid, pusch_pdu->rnti, ulsch_harq->tb_id);
       } else {
-        LATSEQ_P("U phy.TB_dec--phy.TB_dec", "crc_valid=%ld.hqround=%ld.tbs=%ld.TB_seg_ct=%ld::hqpid=%ld.rnti=%ld.tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->C, ulsch->harq_pid, pusch_pdu->rnti, UL_INFO->rx_ind.number_of_pdus);
+        LATSEQ_P("U phy.TB_dec--phy.TB_dec", "crc_valid=%ld.hqround=%ld.tbs=%ld.TB_seg_ct=%ld::hqpid=%ld.rnti=%ld.tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->C, ulsch->harq_pid, pusch_pdu->rnti, ulsch_harq->tb_id);
       }
       gNBdumpScopeData(gNB, ulsch->slot, ulsch->frame, "ULSCH_NACK");
       ulsch->handled = 1;
