@@ -1662,7 +1662,7 @@ static int generate_retx_pdu(nr_rlc_entity_am_t *entity, char *buffer,
   entity->common.stats.txpdu_retx_pkts++;
   entity->common.stats.txpdu_retx_bytes += ret_size;
 
-  LATSEQ_P("D rlc.retx--mac.handover", "sdu_sz=%ld.req_sz=%ld.poll=%ld.rlc_rtx_ct=%ld.rlc_ref_ct=%ld::sn=%ld.so=%ld.rmbuf=%ld.rbuf=%ld", sdu->size, size, p, sdu->sdu->retx_count, sdu->sdu->ref_count, sdu->sdu->sn, sdu->so, buffer, sdu);
+  LATSEQ_P("D rlc.retx--mac.handover", "sdu_sz=%ld.req_sz=%ld.poll=%ld.rlc_rtx_ct=%ld.rlc_ref_ct=%ld::sn=%ld.so=%ld.rmbuf=%ld", sdu->size, size, p, sdu->sdu->retx_count, sdu->sdu->ref_count, sdu->sdu->sn, sdu->so, buffer);
   return ret_size;
 //  return serialize_sdu(entity, sdu, buffer, size, p);
 }
@@ -1750,9 +1750,9 @@ static int generate_tx_pdu(nr_rlc_entity_am_t *entity, char *buffer, int size)
     entity->force_poll = 0;
   }
   int ret_size = serialize_sdu(entity, sdu, buffer, size, p);
-  LATSEQ_P("D rlc.seg--mac.handover", "rlc_seg_sz=%ld.poll=%ld::rbuf=%ld.sn=%ld.so=%ld.rmbuf=%ld", ret_size, p, sdu->sdu, sdu->sdu->sn, sdu->so, buffer);
-  LATSEQ_P("D rlc.seg--rlc.tpoll_exp", "poll=%ld::rbuf=%ld.sn=%ld.so=%ld", p, sdu->sdu, sdu->sdu->sn, sdu->so);
-  LATSEQ_P("D rlc.seg--rlc.nack", "poll=%ld::rbuf=%ld.sn=%ld.so=%ld", p, sdu->sdu, sdu->sdu->sn, sdu->so);
+  LATSEQ_P("D rlc.seg--mac.handover", "rlc_seg_sz=%ld.poll=%ld::sn=%ld.so=%ld.rmbuf=%ld", ret_size, p, sdu->sdu->sn, sdu->so, buffer);
+  LATSEQ_P("D rlc.seg--rlc.tpoll_exp", "poll=%ld::sn=%ld.so=%ld", p, sdu->sdu->sn, sdu->so);
+  LATSEQ_P("D rlc.seg--rlc.nack", "poll=%ld::sn=%ld.so=%ld", p, sdu->sdu->sn, sdu->so);
 
   entity->common.stats.txpdu_pkts++;
   entity->common.stats.txpdu_bytes += ret_size;
@@ -1870,7 +1870,7 @@ void nr_rlc_entity_am_recv_sdu(nr_rlc_entity_t *_entity,
   if (entity->common.avg_time_is_on)
     sdu->sdu->time_of_arrival = time_average_now();
 
-  LATSEQ_P("D rlc.buffer--rlc.seg", "dl_bs=%ld.rlc_pdu_sz=%ld::prbuf=%ld.rbuf=%ld.sn=%ld", entity->common.bstatus.tx_size, complete_size, buffer, sdu->sdu, sdu->sdu->sn);
+  LATSEQ_P("D rlc.buffer--rlc.seg", "dl_bs=%ld.rlc_pdu_sz=%ld::prbuf=%ld.sn=%ld", entity->common.bstatus.tx_size, complete_size, buffer, sdu->sdu->sn);
 }
 
 /*************************************************************************/

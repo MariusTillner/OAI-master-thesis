@@ -302,7 +302,7 @@ int nr_ulsch_decoding(PHY_VARS_gNB *phy_vars_gNB,
       }
       offset += ((harq_process->K >> 3) - (harq_process->F >> 3) - ((harq_process->C > 1) ? 3 : 0));
 
-      LATSEQ_P("U phy.CB_dec--phy.TB_dec", "seg=%ld.dec_succ=%ld.iter=%ld.hqround=%ld::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", r, nrLDPC_segment_decoding_parameters.decodeSuccess, decode_iter, harq_process->round, ulsch->frame, nr_tti_rx, ulsch->harq_pid, ulsch->rnti);
+      LATSEQ_P("U phy.CB_dec--phy.TB_dec", "seg=%ld.dec_succ=%ld.iter=%ld::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", r, nrLDPC_segment_decoding_parameters.decodeSuccess, decode_iter, ulsch->frame, nr_tti_rx, ulsch->harq_pid, ulsch->rnti);
       merge_meas(&phy_vars_gNB->ts_deinterleave, &nrLDPC_segment_decoding_parameters.ts_deinterleave);
       merge_meas(&phy_vars_gNB->ts_rate_unmatch, &nrLDPC_segment_decoding_parameters.ts_rate_unmatch);
       merge_meas(&phy_vars_gNB->ts_ldpc_decode, &nrLDPC_segment_decoding_parameters.ts_ldpc_decode);

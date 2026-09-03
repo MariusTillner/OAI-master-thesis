@@ -1242,8 +1242,8 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
     /* we do not have to do anything, since we do not require to get data
      * from RLC or encode MAC CEs. The TX_req structure is filled below
      * or copy data to FAPI structures */
-    LATSEQ_P("D mac.retx--mac.dci", "hqround=%ld.tbs=%ld::hqpid=%ld.tb_buf=%ld.tb_id=%ld.fm=%ld.sl=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, harq->tb_id, frame, slot);
-    LATSEQ_P("D mac.retx--mac.retx", "hqround=%ld.tbs=%ld::hqpid=%ld.tb_buf=%ld.tb_id=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, harq->tb_id);
+    LATSEQ_P("D mac.retx--mac.dci", "hqround=%ld.tb_sz=%ld::hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld.fm=%ld.sl=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, harq->tb_id, frame, slot);
+    LATSEQ_P("D mac.retx--mac.retx", "hqround=%ld.tb_sz=%ld::hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, harq->tb_id);
     LOG_D(NR_MAC,
           "%d.%2d DL retransmission RNTI %04x HARQ PID %d round %d NDI %d\n",
           frame,
@@ -1320,7 +1320,7 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
                 lcid,
                 ndata,
                 bufEnd-buf-sizeof(NR_MAC_SUBHEADER_LONG));
-          LATSEQ_P("D mac.handover--mac.subhdr", "dl_bler_pct=%ld.rbs=%ld::rmbuf=%ld.fm=%ld.sl=%ld.fm_rtx=%ld.sl_rtx=%ld.hqpid=%ld.rnti=%ld", (int32_t)(sched_ctrl->dl_bler_stats.bler * 100), sched_pdsch->rbSize, (char *)buf+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, frame, slot, current_harq_pid, rnti);
+          LATSEQ_P("D mac.handover--mac.subhdr", "dl_bler_pct=%ld.rbs=%ld::rmbuf=%ld.fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", (int32_t)(sched_ctrl->dl_bler_stats.bler * 100), sched_pdsch->rbSize, (char *)buf+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, current_harq_pid, rnti);
 
           if (len == 0)
             break;
@@ -1334,7 +1334,7 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
           dlsch_total_bytes += len;
           lcid_bytes += len;
           sdus += 1;
-          LATSEQ_P("D mac.subhdr--mac.TB_assembled", "hqround=%ld.mcs=%ld.tbs=%ld.mac_pdu_sz=%ld::rmbuf=%ld.fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", harq->round, sched_pdsch->mcs, sched_pdsch->tb_size, len+sizeof(NR_MAC_SUBHEADER_LONG), buf-len, frame, slot, current_harq_pid, rnti);
+          LATSEQ_P("D mac.subhdr--mac.TB_assembled", "hqround=%ld.mcs=%ld.tb_sz=%ld.mac_pdu_sz=%ld::rmbuf=%ld.fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", harq->round, sched_pdsch->mcs, sched_pdsch->tb_size, len+sizeof(NR_MAC_SUBHEADER_LONG), buf-len, frame, slot, current_harq_pid, rnti);
         }
 
         UE->mac_stats.dl.lc_bytes[lcid] += lcid_bytes;
@@ -1378,8 +1378,8 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
     }
 
     harq->tb_id = ++nr_mac->global_tb_id;
-    LATSEQ_P("D mac.TB_assembled--mac.dci", "hqround=%ld.hqpid=%ld.tbs=%ld::rnti=%ld.fm=%ld.sl=%ld.tb_id=%ld", harq->round, current_harq_pid, TBS, rnti, frame, slot, harq->tb_id);
-    LATSEQ_P("D mac.TB_assembled--mac.retx", "hqround=%ld.tbs=%ld::rnti=%ld.fm=%ld.sl=%ld.hqpid=%ld.tb_buf=%ld.tb_id=%ld", harq->round, TBS, rnti, frame, slot, current_harq_pid, harq->transportBlock.buf, harq->tb_id);
+    LATSEQ_P("D mac.TB_assembled--mac.dci", "hqround=%ld.hqpid=%ld.tb_sz=%ld::rnti=%ld.fm=%ld.sl=%ld.dl_tb_id=%ld", harq->round, current_harq_pid, TBS, rnti, frame, slot, harq->tb_id);
+    LATSEQ_P("D mac.TB_assembled--mac.retx", "hqround=%ld.tb_sz=%ld::rnti=%ld.fm=%ld.sl=%ld.hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld", harq->round, TBS, rnti, frame, slot, current_harq_pid, harq->transportBlock.buf, harq->tb_id);
 
     UE->mac_stats.dl.total_bytes += TBS;
     UE->mac_stats.dl.current_bytes = TBS;

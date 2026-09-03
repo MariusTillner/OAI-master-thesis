@@ -499,7 +499,7 @@ static int nr_process_mac_pdu(instance_t module_idP,
           LOG_I(NR_MAC, "RNTI %04x LCID %d: ignoring %d bytes\n", UE->rnti, lcid, mac_len);
         } else {
           UE->mac_stats.ul.lc_bytes[lcid] += mac_len;
-          LATSEQ_P("U mac.demuxed--rlc.dec", "mac_sdu_sz=%ld.ue_buf=%ld.snr10=%ld.ul_bler_pct=%ld.rsrp=%ld.prbs=%ld::fm=%ld.sl=%ld.hqpid=%ld.mrbuf=%ld", mac_len, sched_ctrl->estimated_ul_buffer, sched_ctrl->pusch_snrx10, (int32_t)(sched_ctrl->ul_bler_stats.bler * 100), sched_ctrl->CSI_report.ssb_rsrp_report.r[0].RSRP, UE->mac_stats.NPRB, frameP, slot, harq_pid, pduP+mac_subheader_len);
+          LATSEQ_P("U mac.demuxed--rlc.dec", "mac_sdu_sz=%ld.ue_buf=%ld.10xsnr=%ld.ul_bler_pct=%ld.rsrp=%ld.prbs=%ld::fm=%ld.sl=%ld.hqpid=%ld.mrbuf=%ld", mac_len, sched_ctrl->estimated_ul_buffer, sched_ctrl->pusch_snrx10, (int32_t)(sched_ctrl->ul_bler_stats.bler * 100), sched_ctrl->CSI_report.ssb_rsrp_report.r[0].RSRP, UE->mac_stats.NPRB, frameP, slot, harq_pid, pduP+mac_subheader_len);
           nr_mac_rlc_data_ind(module_idP, UE->rnti, true, lcid, (char *)(pduP + mac_subheader_len), mac_len);
 
           sdus += 1;

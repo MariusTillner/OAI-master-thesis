@@ -519,7 +519,7 @@ typedef struct NR_UE_harq {
   NR_sched_pdsch_t sched_pdsch;
 
   // transport block identifier, used to identify the TB in the HARQ process
-  int64_t tb_id;
+  uint64_t tb_id;
 } NR_UE_harq_t;
 
 //! fixme : need to enhace for the multiple TB CQI report

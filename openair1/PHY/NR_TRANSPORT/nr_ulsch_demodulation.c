@@ -1162,7 +1162,7 @@ int nr_rx_pusch_tp(PHY_VARS_gNB *gNB,
   //------------------- Channel estimation -------------------
   //----------------------------------------------------------
   start_meas(&gNB->ulsch_channel_estimation_stats);
-  LATSEQ_P("U phy.prach_pucch--phy.CH_est", "mcs=%ld.qm=%ld.hqround=%ld::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld.hqround_retx=%ld", rel15_ul->mcs_index, rel15_ul->qam_mod_order, gNB->ulsch[ulsch_id].harq_process->round, frame, slot, harq_pid, rel15_ul->rnti, gNB->ulsch[ulsch_id].harq_process->round);
+  LATSEQ_P("U phy.prach_pucch--phy.CH_est", "mcs=%ld.qm=%ld::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", rel15_ul->mcs_index, rel15_ul->qam_mod_order, frame, slot, harq_pid, rel15_ul->rnti);
   int max_ch = 0;
   uint32_t nvar = 0;
   int end_symbol = rel15_ul->start_symbol_index + rel15_ul->nr_of_symbols;
@@ -1606,7 +1606,7 @@ int nr_rx_pusch_tp(PHY_VARS_gNB *gNB,
 #endif
 
   join_task_ans(&ans);
-  LATSEQ_P("U phy.demodulated--phy.CB_dec", "syms=%ld::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", rel15_ul->nr_of_symbols+1, frame, slot, harq_pid, rel15_ul->rnti);
+  LATSEQ_P("U phy.demodulated--phy.CB_dec", "::fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", frame, slot, harq_pid, rel15_ul->rnti);
   stop_meas(&gNB->rx_pusch_symbol_processing_stats);
 
   // Copy the data to the scope. This cannot be performed in one call to gNBscopeCopy because the data is not contiguous in the
