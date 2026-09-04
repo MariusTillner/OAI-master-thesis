@@ -156,7 +156,7 @@ typedef struct {
   /// Used for computing LDPC decoder R
   int llrLen;
   /// Unique identifier of this Transport Block
-  uint64_t tb_id;
+  uint64_t ul_tb_id;
   //////////////////////////////////////////////////////////////
 } NR_UL_gNB_HARQ_t;
 

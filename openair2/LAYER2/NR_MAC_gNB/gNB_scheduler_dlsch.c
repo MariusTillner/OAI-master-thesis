@@ -1242,8 +1242,8 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
     /* we do not have to do anything, since we do not require to get data
      * from RLC or encode MAC CEs. The TX_req structure is filled below
      * or copy data to FAPI structures */
-    LATSEQ_P("D mac.retx--mac.dci", "hqround=%ld.tb_sz=%ld::hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld.fm=%ld.sl=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, harq->tb_id, frame, slot);
-    LATSEQ_P("D mac.retx--mac.retx", "hqround=%ld.tb_sz=%ld::hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, harq->tb_id);
+    LATSEQ_P("D mac.retx--mac.dci", "hqround=%ld.tb_sz=%ld::hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld.fm=%ld.sl=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, harq->dl_tb_id, frame, slot);
+    LATSEQ_P("D mac.retx--mac.retx", "hqround=%ld.tb_sz=%ld::hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld", harq->round, TBS, current_harq_pid, harq->transportBlock.buf, harq->dl_tb_id);
     LOG_D(NR_MAC,
           "%d.%2d DL retransmission RNTI %04x HARQ PID %d round %d NDI %d\n",
           frame,
@@ -1377,9 +1377,9 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
       buf=bufEnd;
     }
 
-    harq->tb_id = ++nr_mac->global_tb_id;
-    LATSEQ_P("D mac.TB_assembled--mac.dci", "hqround=%ld.hqpid=%ld.tb_sz=%ld::rnti=%ld.fm=%ld.sl=%ld.dl_tb_id=%ld", harq->round, current_harq_pid, TBS, rnti, frame, slot, harq->tb_id);
-    LATSEQ_P("D mac.TB_assembled--mac.retx", "hqround=%ld.tb_sz=%ld::rnti=%ld.fm=%ld.sl=%ld.hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld", harq->round, TBS, rnti, frame, slot, current_harq_pid, harq->transportBlock.buf, harq->tb_id);
+    harq->dl_tb_id = ++nr_mac->global_tb_id;
+    LATSEQ_P("D mac.TB_assembled--mac.dci", "hqround=%ld.hqpid=%ld.tb_sz=%ld::rnti=%ld.fm=%ld.sl=%ld.dl_tb_id=%ld", harq->round, current_harq_pid, TBS, rnti, frame, slot, harq->dl_tb_id);
+    LATSEQ_P("D mac.TB_assembled--mac.retx", "hqround=%ld.tb_sz=%ld::rnti=%ld.fm=%ld.sl=%ld.hqpid=%ld.tb_buf=%ld.dl_tb_id=%ld", harq->round, TBS, rnti, frame, slot, current_harq_pid, harq->transportBlock.buf, harq->dl_tb_id);
 
     UE->mac_stats.dl.total_bytes += TBS;
     UE->mac_stats.dl.current_bytes = TBS;
