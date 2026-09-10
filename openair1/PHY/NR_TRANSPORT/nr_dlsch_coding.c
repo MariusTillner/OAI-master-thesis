@@ -179,7 +179,7 @@ int nr_dlsch_encoding(PHY_VARS_gNB *gNB,
       AssertFatal((A / 8) + 3 <= max_bytes, "A %d is too big (A/8+3 = %d > %d)\n", A, (A / 8) + 3, max_bytes);
       memcpy(dlsch->b, a, (A / 8) + 3); // using 3 bytes to mimic the case of 24 bit crc
     }
-    LATSEQ_P("D phy.crc--phy.CB_seg", "::fm=%ld.sl=%ld.rnti=%ld", frame, slot, rel15->rnti);
+    LATSEQ_P("D phy.crc--phy.CB_seg", ":rnti=%ld:fm=%ld.sl=%ld", rel15->rnti, frame, slot);
 
     nrLDPC_TB_encoding_parameters_t *TB_parameters = &TBs[i];
 
@@ -196,7 +196,7 @@ int nr_dlsch_encoding(PHY_VARS_gNB *gNB,
                                         &TB_parameters->Z,
                                         &TB_parameters->F,
                                         TB_parameters->BG);
-    LATSEQ_P("D phy.CB_seg--phy.ldpc", "cb_seg_ct=%ld.cb_bits=%ld.f_bits=%ld::fm=%ld.sl=%ld.rnti=%ld", TB_parameters->C, TB_parameters->K, TB_parameters->F, frame, slot, rel15->rnti);
+    LATSEQ_P("D phy.CB_seg--phy.ldpc", "cb_seg_ct=%ld.cb_bits=%ld.f_bits=%ld:rnti=%ld:fm=%ld.sl=%ld", TB_parameters->C, TB_parameters->K, TB_parameters->F, rel15->rnti, frame, slot);
     stop_meas(dlsch_segmentation_stats);
 
     if (TB_parameters->C > MAX_NUM_NR_DLSCH_SEGMENTS_PER_LAYER * rel15->nrOfLayers) {

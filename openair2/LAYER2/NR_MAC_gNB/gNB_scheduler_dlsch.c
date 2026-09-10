@@ -1320,7 +1320,7 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
                 lcid,
                 ndata,
                 bufEnd-buf-sizeof(NR_MAC_SUBHEADER_LONG));
-          LATSEQ_P("D mac.handover--mac.subhdr", "dl_bler_pct=%ld.rbs=%ld::rmbuf=%ld.fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", (int32_t)(sched_ctrl->dl_bler_stats.bler * 100), sched_pdsch->rbSize, (char *)buf+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, current_harq_pid, rnti);
+          LATSEQ_P("D mac.handover--mac.subhdr", "dl_bler_pct=%ld.rbs=%ld:rnti=%ld:rmbuf=%ld.fm=%ld.sl=%ld.hqpid=%ld", (int32_t)(sched_ctrl->dl_bler_stats.bler * 100), sched_pdsch->rbSize, rnti, (char *)buf+sizeof(NR_MAC_SUBHEADER_LONG), frame, slot, current_harq_pid);
 
           if (len == 0)
             break;
@@ -1334,7 +1334,7 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
           dlsch_total_bytes += len;
           lcid_bytes += len;
           sdus += 1;
-          LATSEQ_P("D mac.subhdr--mac.TB_assembled", "hqround=%ld.mcs=%ld.tb_sz=%ld.mac_pdu_sz=%ld::rmbuf=%ld.fm=%ld.sl=%ld.hqpid=%ld.rnti=%ld", harq->round, sched_pdsch->mcs, sched_pdsch->tb_size, len+sizeof(NR_MAC_SUBHEADER_LONG), buf-len, frame, slot, current_harq_pid, rnti);
+          LATSEQ_P("D mac.subhdr--mac.TB_assembled", "hqround=%ld.mcs=%ld.tb_sz=%ld.mac_pdu_sz=%ld:rnti=%ld:rmbuf=%ld.fm=%ld.sl=%ld.hqpid=%ld", harq->round, sched_pdsch->mcs, sched_pdsch->tb_size, len+sizeof(NR_MAC_SUBHEADER_LONG), rnti, buf-len, frame, slot, current_harq_pid);
         }
 
         UE->mac_stats.dl.lc_bytes[lcid] += lcid_bytes;
@@ -1378,8 +1378,8 @@ void post_process_dlsch(gNB_MAC_INST *nr_mac, post_process_pdsch_t *pdsch, NR_UE
     }
 
     harq->dl_tb_id = ++nr_mac->global_tb_id;
-    LATSEQ_P("D mac.TB_assembled--mac.dci", "hqround=%ld.hqpid=%ld.tb_sz=%ld::rnti=%ld.fm=%ld.sl=%ld.dl_tb_id=%ld", harq->round, current_harq_pid, TBS, rnti, frame, slot, harq->dl_tb_id);
-    LATSEQ_P("D mac.TB_assembled--mac.retx", "hqround=%ld.tb_sz=%ld::rnti=%ld.fm=%ld.sl=%ld.hqpid=%ld.dl_tb_id=%ld", harq->round, TBS, rnti, frame, slot, current_harq_pid, harq->dl_tb_id);
+    LATSEQ_P("D mac.TB_assembled--mac.dci", "hqround=%ld.hqpid=%ld.tb_sz=%ld:rnti=%ld:fm=%ld.sl=%ld.dl_tb_id=%ld", harq->round, current_harq_pid, TBS, rnti, frame, slot, harq->dl_tb_id);
+    LATSEQ_P("D mac.TB_assembled--mac.retx", "hqround=%ld.tb_sz=%ld:rnti=%ld:fm=%ld.sl=%ld.hqpid=%ld.dl_tb_id=%ld", harq->round, TBS, rnti, frame, slot, current_harq_pid, harq->dl_tb_id);
 
     UE->mac_stats.dl.total_bytes += TBS;
     UE->mac_stats.dl.current_bytes = TBS;
