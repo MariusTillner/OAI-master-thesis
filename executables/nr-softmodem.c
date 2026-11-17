@@ -87,6 +87,7 @@ unsigned short config_frames[4] = {2,9,11,13};
 #include "x2ap_eNB.h"
 #include "openair1/SCHED_NR/sched_nr.h"
 #include "openair2/SDAP/nr_sdap/nr_sdap.h"
+#include "common/utils/LATSEQ/latseq.h"
 
 pthread_cond_t nfapi_sync_cond;
 pthread_mutex_t nfapi_sync_mutex;
@@ -423,6 +424,7 @@ int start_L1L2(module_id_t gnb_id)
 
   /* update config */
   gNB_MAC_INST *mac = RC.nrmac[0];
+  mac->global_tb_id = 0;
   NR_ServingCellConfigCommon_t *scc = mac->common_channels[0].ServingCellConfigCommon;
   nr_mac_config_scc(mac, scc, &mac->radio_config);
 
@@ -612,6 +614,7 @@ int main( int argc, char **argv ) {
                          : TIME_SOURCE_REALTIME);
 
   // start the main threads
+  init_latseq("/dev/shm/latseq", (uint64_t)(cpuf*1000000000LL));
   number_of_cards = 1;
 
   wait_gNBs();
@@ -723,6 +726,7 @@ int main( int argc, char **argv ) {
 
   itti_wait_tasks_end(NULL);
   printf("Returned from ITTI signal handler\n");
+  close_latseq(); //close before end of threads
 
   nfapi_stop_l1();
 

@@ -48,6 +48,7 @@
 
 #include "common/utils/LOG/log.h"
 #include "common/utils/time_manager/time_manager.h"
+#include "common/utils/LATSEQ/latseq.h"
 
 #include <executables/softmodem-common.h>
 /* these variables have to be defined before including ENB_APP/enb_paramdef.h and GNB_APP/gnb_paramdef.h */
@@ -469,6 +470,9 @@ static void rx_rf(RU_t *ru, int *frame, int *slot)
   }
 
   stop_meas(&ru->rx_fhaul);
+  // hw_ts: radio sample counter of the first sample of this slot (device domain, incl. ts_offset).
+  // trx_read returns when the last sample arrived, i.e. this event is ~ air time of sample hw_ts + n_samp.
+  LATSEQ_P("U phy.rx_samples_in--phy.fft", "iq_sz=%ld.hw_ts=%ld.n_samp=%ld.fs=%ld::fm=%ld.sl=%ld", samples_per_slot*sizeof(c16_t), proc->timestamp_rx + ru->ts_offset, samples_per_slot, (int64_t)cfg->sample_rate, *frame, *slot);
 }
 
 static radio_tx_gpio_flag_t get_gpio_flags(RU_t *ru, int slot)
@@ -593,6 +597,8 @@ void tx_rf(RU_t *ru, int frame,int slot, uint64_t timestamp)
                                              siglen + sf_extension,
                                              nt,
                                              flags);
+  // hw_ts: radio sample counter at which the first sample of this burst goes on air (same domain as hw_ts in rx_samples_in)
+  LATSEQ_P("D phy.tx_samples_out--phy.out", "iq_sz=%ld.hw_ts=%ld.n_samp=%ld::fm=%ld.sl=%ld", (siglen + sf_extension)*sizeof(c16_t), timestamp + ru->ts_offset - sf_extension, siglen + sf_extension, frame, slot);
   LOG_D(PHY,
         "[TXPATH] RU %d tx_rf, writing to TS %lu, %d.%d, unwrapped_frame %d, slot %d, flags %d, siglen+sf_extension %d, "
         "returned %d, E %f\n",
@@ -774,6 +780,8 @@ void ru_tx_func(void *param)
   if (ru->fh_north_asynch_in == NULL && ru->feptx_ofdm)
     ru->feptx_ofdm(ru, frame_tx, slot_tx);
 
+  LATSEQ_P("D phy.ifft--phy.tx_samples_out", "sl_ahead=%ld::fm=%ld.sl=%ld", ru->sl_ahead, frame_tx, slot_tx);
+
   if (ru->fh_north_asynch_in == NULL && ru->fh_south_out)
     ru->fh_south_out(ru, frame_tx, slot_tx, info->timestamp_tx);
   if (ru->fh_north_out)
@@ -940,6 +948,7 @@ void *ru_thread(void *param)
 
     // synchronization on input FH interface, acquire signals/data and block
     LOG_D(PHY,"[RU_thread] read data: frame_rx = %d, tti_rx = %d\n", frame, slot);
+    LATSEQ_P("U phy.rx_samples_start--phy.rx_samples_in", "::fm=%ld.sl=%ld", frame, slot);
 
     AssertFatal(ru->fh_south_in, "No fronthaul interface at south port");
     ru->fh_south_in(ru, &frame, &slot);
@@ -986,6 +995,7 @@ void *ru_thread(void *param)
         break; // nothing to wait for: we have to stop
       if (ru->feprx) {
         ru->feprx(ru,proc->tti_rx);
+        LATSEQ_P("U phy.fft--phy.sched_start", "::fm=%ld.sl=%ld", frame, slot);
         LOG_D(NR_PHY, "Setting %d.%d (%d) to busy\n", proc->frame_rx, proc->tti_rx, proc->tti_rx % RU_RX_SLOT_DEPTH);
         //LOG_M("rxdata.m","rxs",ru->common.rxdata[0],1228800,1,1);
         LOG_D(PHY,"RU proc: frame_rx = %d, tti_rx = %d\n", proc->frame_rx, proc->tti_rx);

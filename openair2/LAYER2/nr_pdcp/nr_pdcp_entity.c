@@ -32,6 +32,7 @@
 #include "nr_pdcp_sdu.h"
 
 #include "LOG/log.h"
+#include "common/utils/LATSEQ/latseq.h"
 
 /**
  * @brief returns the maximum PDCP PDU size
@@ -95,6 +96,7 @@ static void nr_pdcp_entity_recv_pdu(nr_pdcp_entity_t *entity,
     header_size = LONG_PDCP_HEADER_SIZE;
   }
   entity->stats.rxpdu_sn = rcvd_sn;
+  LATSEQ_P("U pdcp.hdr_dec--pdcp.int_ciph_dec", "pdcp_pdu_sz=%ld::sn=%ld.pdu_sess_id=%ld", size, rcvd_sn, entity->rb_id);
 
   /* SRBs always have MAC-I, even if integrity is not active */
   if (entity->has_integrity || entity->type == NR_PDCP_SRB) {
@@ -154,12 +156,14 @@ static void nr_pdcp_entity_recv_pdu(nr_pdcp_entity_t *entity,
       return;
     }
   }
+  LATSEQ_P("U pdcp.int_ciph_dec--pdcp.deliver", "::sn=%ld.pdu_sess_id=%ld", rcvd_sn, entity->rb_id);
 
   if (rcvd_count < entity->rx_deliv
       || nr_pdcp_sdu_in_list(entity->rx_list, rcvd_count)) {
     LOG_W(PDCP, "discard NR PDU rcvd_count=%d, entity->rx_deliv %d,sdu_in_list %d\n", rcvd_count,entity->rx_deliv,nr_pdcp_sdu_in_list(entity->rx_list,rcvd_count));
     entity->stats.rxpdu_dd_pkts++;
     entity->stats.rxpdu_dd_bytes += size;
+    LATSEQ_P("U pdcp.deliver--pdcp.discard_rcvdsmallerdeliv", "pdcp_sdu_sz=%ld::sn=%ld.pdu_sess_id=%ld", size-header_size-integrity_size, rcvd_sn, entity->rb_id);
 
     return;
   }
@@ -182,6 +186,7 @@ static void nr_pdcp_entity_recv_pdu(nr_pdcp_entity_t *entity,
     uint32_t count = entity->rx_deliv;
     while (entity->rx_list != NULL && count == entity->rx_list->count) {
       nr_pdcp_sdu_t *cur = entity->rx_list;
+      LATSEQ_P("U pdcp.deliver--sdap.sdu", "pdcp_sdu_sz=%ld::sn=%ld.psbuf=%ld.pdu_sess_id=%ld", sdu->size, cur->count, cur->buffer, entity->rb_id);
       entity->deliver_sdu(entity->deliver_sdu_data, entity,
                           cur->buffer, cur->size,
                           &cur->msg_integrity);
@@ -264,6 +269,7 @@ static int nr_pdcp_entity_process_sdu(nr_pdcp_entity_t *entity,
     buf[2] = sn & 0xff;
     header_size = LONG_PDCP_HEADER_SIZE;
   }
+  LATSEQ_P("D pdcp.hdr--pdcp.int_ciph", "::spbuf=%ld.sn=%ld.pbuf=%ld.pdu_sess_id=%ld", buffer, sn, buf, entity->rb_id);
 
   /* SRBs always have MAC-I, even if integrity is not active */
   if (entity->has_integrity || entity->type == NR_PDCP_SRB) {
@@ -300,6 +306,7 @@ static int nr_pdcp_entity_process_sdu(nr_pdcp_entity_t *entity,
   entity->stats.txpdu_bytes += header_size + size + integrity_size;
   entity->stats.txpdu_sn = sn;
 
+  LATSEQ_P("D pdcp.int_ciph--rlc.buffer", "pdcp_pdu_sz=%ld::sn=%ld.pdu_sess_id=%ld", header_size + size + integrity_size, sn, entity->rb_id);
   return header_size + size + integrity_size;
 }
 
@@ -419,6 +426,8 @@ static void check_t_reordering(nr_pdcp_entity_t *entity)
   /* deliver all SDUs with count < rx_reord */
   while (entity->rx_list != NULL && entity->rx_list->count < entity->rx_reord) {
     nr_pdcp_sdu_t *cur = entity->rx_list;
+    LATSEQ_P("U pdcp.deliver--pdcp.deliver_ooo", "pdcp_sdu_sz=%ld::sn=%ld.pdu_sess_id=%ld", cur->size, cur->count, entity->rb_id);
+    LATSEQ_P("U pdcp.deliver_ooo--sdap.sdu", "::sn=%ld.psbuf=%ld.pdu_sess_id=%ld", cur->count, cur->buffer, entity->rb_id);
     entity->deliver_sdu(entity->deliver_sdu_data, entity,
                         cur->buffer, cur->size,
                         &cur->msg_integrity);
@@ -433,6 +442,8 @@ static void check_t_reordering(nr_pdcp_entity_t *entity)
   count = entity->rx_reord;
   while (entity->rx_list != NULL && count == entity->rx_list->count) {
     nr_pdcp_sdu_t *cur = entity->rx_list;
+    LATSEQ_P("U pdcp.deliver--pdcp.deliver_reorder", "pdcp_sdu_sz=%ld::sn=%ld.pdu_sess_id=%ld", cur->size, cur->count, entity->rb_id);
+    LATSEQ_P("U pdcp.deliver_reorder--sdap.sdu", "::sn=%ld.psbuf=%ld.pdu_sess_id=%ld", cur->count, cur->buffer, entity->rb_id);
     entity->deliver_sdu(entity->deliver_sdu_data, entity,
                         cur->buffer, cur->size,
                         &cur->msg_integrity);

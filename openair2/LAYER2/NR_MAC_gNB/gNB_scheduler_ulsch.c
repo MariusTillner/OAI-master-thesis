@@ -35,6 +35,7 @@
 #include "utils.h"
 #include <openair2/UTIL/OPT/opt.h>
 #include "LAYER2/nr_rlc/nr_rlc_oai_api.h"
+#include "common/utils/LATSEQ/latseq.h"
 
 //#define SRS_IND_DEBUG
 
@@ -498,7 +499,7 @@ static int nr_process_mac_pdu(instance_t module_idP,
           LOG_I(NR_MAC, "RNTI %04x LCID %d: ignoring %d bytes\n", UE->rnti, lcid, mac_len);
         } else {
           UE->mac_stats.ul.lc_bytes[lcid] += mac_len;
-
+          LATSEQ_P("U mac.demuxed--rlc.dec", "mac_sdu_sz=%ld.ue_buf=%ld.10xsnr=%ld.ul_bler_pct=%ld.rsrp=%ld.prbs=%ld::fm=%ld.sl=%ld.hqpid=%ld.mrbuf=%ld", mac_len, sched_ctrl->estimated_ul_buffer, sched_ctrl->pusch_snrx10, (int32_t)(sched_ctrl->ul_bler_stats.bler * 100), sched_ctrl->CSI_report.ssb_rsrp_report.r[0].RSRP, UE->mac_stats.NPRB, frameP, slot, harq_pid, pduP+mac_subheader_len);
           nr_mac_rlc_data_ind(module_idP, UE->rnti, true, lcid, (char *)(pduP + mac_subheader_len), mac_len);
 
           sdus += 1;
@@ -591,6 +592,7 @@ static int nr_process_mac_pdu(instance_t module_idP,
         ce_ptr = &pduP[mac_subheader_len];
         sched_ctrl->estimated_ul_buffer = estimate_ul_buffer_short_bsr((NR_BSR_SHORT *)ce_ptr);
         sched_ctrl->sched_ul_bytes = 0;
+        LATSEQ_P("U mac.bsr--mac.ul_grant", "bsr_fm=%ld.bsr_sl=%ld.long=%ld.ul_buf=%ld:rnti=%ld:crnti=%ld", frameP, slot, 0, sched_ctrl->estimated_ul_buffer, UE->rnti, UE->rnti);
         LOG_D(NR_MAC, "SHORT BSR at %4d.%2d, est buf %d\n", frameP, slot, sched_ctrl->estimated_ul_buffer);
         break;
 
@@ -600,6 +602,7 @@ static int nr_process_mac_pdu(instance_t module_idP,
         ce_ptr = &pduP[mac_subheader_len];
         sched_ctrl->estimated_ul_buffer = estimate_ul_buffer_long_bsr((NR_BSR_LONG *)ce_ptr);
         sched_ctrl->sched_ul_bytes = 0;
+        LATSEQ_P("U mac.bsr--mac.ul_grant", "bsr_fm=%ld.bsr_sl=%ld.long=%ld.ul_buf=%ld:rnti=%ld:crnti=%ld", frameP, slot, 1, sched_ctrl->estimated_ul_buffer, UE->rnti, UE->rnti);
         LOG_D(NR_MAC, "LONG BSR at %4d.%2d, estim buf %d\n", frameP, slot, sched_ctrl->estimated_ul_buffer);
         break;
 
@@ -2411,6 +2414,7 @@ void post_process_ulsch(gNB_MAC_INST *nr_mac, post_process_pusch_t *pusch, NR_UE
   NR_UE_UL_BWP_t *current_BWP = &UE->current_UL_BWP;
 
   /* the UE now has the grant for the request */
+  const bool sr_pending = sched_ctrl->SR; // LatSeq: grant answers an SR
   sched_ctrl->SR = false;
 
   int8_t harq_id = sched_pusch->ul_harq_pid;
@@ -2458,6 +2462,8 @@ void post_process_ulsch(gNB_MAC_INST *nr_mac, post_process_pusch_t *pusch, NR_UE
   nr_mac->mac_stats.ul.used_prb_aggregate += sched_pusch->rbSize;
   sched_ctrl->last_ul_frame = sched_pusch->frame;
   sched_ctrl->last_ul_slot = sched_pusch->slot;
+  // fm.sl = PUSCH slot, so the grant matches phy.rx_samples_start of that slot; dci_fm.dci_sl = slot of the UL DCI
+  LATSEQ_P("U mac.ul_grant--phy.rx_samples_start", "dci_fm=%ld.dci_sl=%ld.tb_sz=%ld.hqround=%ld.sr=%ld.ul_buf=%ld:rnti=%ld:crnti=%ld.fm=%ld.sl=%ld", frame, slot, sched_pusch->tb_size, cur_harq->round, sr_pending, sched_ctrl->estimated_ul_buffer, UE->rnti, UE->rnti, sched_pusch->frame, sched_pusch->slot);
 
   LOG_D(NR_MAC,
         "ULSCH/PUSCH: %4d.%2d RNTI %04x UL sched %4d.%2d DCI L %d start %2d RBS %3d TDA %2d dmrs_pos %x MCS "

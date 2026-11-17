@@ -40,6 +40,7 @@
 #include <stdint.h>
 #include <openair1/PHY/TOOLS/phy_scope_interface.h>
 #include "PHY/log_tools.h"
+#include "common/utils/LATSEQ/latseq.h"
 
 //#define DEBUG_RXDATA
 //#define SRS_IND_DEBUG
@@ -312,6 +313,7 @@ void phy_procedures_gNB_TX(PHY_VARS_gNB *gNB,
  
   if (num_pdsch > 0) {
     LOG_D(PHY, "PDSCH generation started (%d) in frame %d.%d\n", num_pdsch, frame, slot);
+    LATSEQ_P("D mac.dci--phy.crc", "::fm=%ld.sl=%ld", frame, slot);
     nr_generate_pdsch(gNB, num_pdsch, gNB->dlsch, frame, slot);
   }
 
@@ -337,6 +339,7 @@ void phy_procedures_gNB_TX(PHY_VARS_gNB *gNB,
     }
   }
   stop_meas(&gNB->phase_comp_stats);
+  LATSEQ_P("D phy.rotated--phy.ifft", "::fm=%ld.sl=%ld", frame, slot);
 }
 
 static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, bool *ulsch_to_decode, NR_UL_IND_t *UL_INFO)
@@ -416,6 +419,9 @@ static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, boo
     NR_gNB_ULSCH_t *ulsch = &gNB->ulsch[ULSCH_id];
     NR_gNB_PUSCH *pusch = &gNB->pusch_vars[ULSCH_id];
     NR_UL_gNB_HARQ_t *ulsch_harq = ulsch->harq_process;
+    if (ulsch_harq->round == 0) {
+      ulsch_harq->ul_tb_id = gNB->global_ul_tb_id++;
+    }
     nfapi_nr_pusch_pdu_t *pusch_pdu = &ulsch_harq->ulsch_pdu;
 
     bool crc_valid = false;
@@ -511,6 +517,7 @@ static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, boo
             ulsch_harq->TBS,
             ulsch->max_ldpc_iterations);
       nr_fill_indication(gNB, ulsch->frame, ulsch->slot, ULSCH_id, ulsch->harq_pid, 0, 0, crc, pdu);
+      LATSEQ_P("U phy.TB_dec--phy.srs", "crc_valid=%ld.hqround=%ld.tb_sz=%ld.rb_sz=%ld.TB_seg_ct=%ld:rnti=%ld:fm=%ld.sl=%ld.hqpid=%ld.ul_tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->ulsch_pdu.rb_size, ulsch_harq->C, pusch_pdu->rnti, ulsch->frame, ulsch->slot, ulsch->harq_pid, ulsch_harq->ul_tb_id);
       LOG_D(PHY, "ULSCH received ok \n");
       ulsch->active = false;
       ulsch_harq->round = 0;
@@ -531,6 +538,11 @@ static int nr_ulsch_procedures(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, boo
             ulsch_harq->ulsch_pdu.rb_size,
             ulsch_harq->TBS);
       nr_fill_indication(gNB, ulsch->frame, ulsch->slot, ULSCH_id, ulsch->harq_pid, 1, 0, crc, pdu);
+      if (ulsch_harq->round == 3) {
+        LATSEQ_P("U phy.TB_dec--phy.TB_drop", "crc_valid=%ld.hqround=%ld.tb_sz=%ld.rb_sz=%ld.TB_seg_ct=%ld:rnti=%ld:hqpid=%ld.ul_tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->ulsch_pdu.rb_size, ulsch_harq->C, pusch_pdu->rnti, ulsch->harq_pid, ulsch_harq->ul_tb_id);
+      } else {
+        LATSEQ_P("U phy.TB_dec--phy.TB_dec", "crc_valid=%ld.hqround=%ld.tb_sz=%ld.rb_sz=%ld.TB_seg_ct=%ld:rnti=%ld:hqpid=%ld.ul_tb_id=%ld", crc_valid, ulsch_harq->round, ulsch_harq->TBS, ulsch_harq->ulsch_pdu.rb_size, ulsch_harq->C, pusch_pdu->rnti, ulsch->harq_pid, ulsch_harq->ul_tb_id);
+      }
       gNBdumpScopeData(gNB, ulsch->slot, ulsch->frame, "ULSCH_NACK");
       ulsch->handled = 1;
       LOG_D(PHY, "ULSCH %d in error\n",ULSCH_id);
@@ -1362,6 +1374,7 @@ int phy_procedures_gNB_uespec_RX(PHY_VARS_gNB *gNB, int frame_rx, int slot_rx, N
     stop_meas(&gNB->rx_srs_stats);
   }
 
+  LATSEQ_P("U phy.srs--phy.rach_uci", "::fm=%ld.sl=%ld", frame_rx, slot_rx);
   stop_meas(&gNB->phy_proc_rx);
 
   if (pucch_decode_done || pusch_decode_done) {

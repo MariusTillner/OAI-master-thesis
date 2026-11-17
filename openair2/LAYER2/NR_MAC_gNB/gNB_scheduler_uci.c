@@ -32,6 +32,7 @@
 #include "common/ran_context.h"
 #include "common/utils/nr/nr_common.h"
 #include "nfapi/oai_integration/vendor_ext.h"
+#include "common/utils/LATSEQ/latseq.h"
 static void nr_fill_nfapi_pucch(gNB_MAC_INST *nrmac, frame_t frame, slot_t slot, const NR_sched_pucch_t *pucch, NR_UE_info_t* UE)
 {
 
@@ -376,10 +377,15 @@ int get_pucch_resourceid(NR_PUCCH_Config_t *pucch_Config, int O_uci, int pucch_r
   return *resource_id;
 }
 
-static void handle_dl_harq(gNB_MAC_INST *mac, NR_UE_info_t * UE, int8_t harq_pid, bool success, int harq_round_max)
+/* dtx: feedback was not reliably received (PUCCH0 DTX, PUCCH2/3/4 CRC failure,
+ * or the expected feedback slot already passed). Only used for LatSeq. */
+static void handle_dl_harq(gNB_MAC_INST *mac, NR_UE_info_t * UE, int8_t harq_pid, bool success, bool dtx, int harq_round_max)
 {
   NR_UE_sched_ctrl_t *sched_ctrl = &UE->UE_sched_ctrl;
   NR_UE_harq_t *harq = &sched_ctrl->harq_processes[harq_pid];
+  // slot in which the HARQ feedback was expected; read before feedback_slot is reset
+  const int fb_fm = harq->feedback_frame;
+  const int fb_sl = harq->feedback_slot;
   harq->feedback_slot = -1;
   harq->is_waiting = false;
   if (success) {
@@ -387,9 +393,11 @@ static void handle_dl_harq(gNB_MAC_INST *mac, NR_UE_info_t * UE, int8_t harq_pid
       harq->sched_pdsch.action(mac, UE);
     finish_nr_dl_harq(sched_ctrl, harq_pid);
   } else if (harq->round >= harq_round_max - 1) {
+    LATSEQ_P("D mac.harq_nack--mac.harq_drop", "hqround=%ld.dtx=%ld.fb_fm=%ld.fb_sl=%ld:rnti=%ld:hqpid=%ld.dl_tb_id=%ld", harq->round, dtx, fb_fm, fb_sl, UE->rnti, harq_pid, harq->dl_tb_id);
     abort_nr_dl_harq(UE, harq_pid);
     LOG_D(NR_MAC, "retransmission error for UE %04x (total %"PRIu64")\n", UE->rnti, UE->mac_stats.dl.errors);
   } else {
+    LATSEQ_P("D mac.harq_nack--mac.retx", "hqround=%ld.dtx=%ld.fb_fm=%ld.fb_sl=%ld:rnti=%ld:hqpid=%ld.dl_tb_id=%ld", harq->round, dtx, fb_fm, fb_sl, UE->rnti, harq_pid, harq->dl_tb_id);
     LOG_D(PHY,"NACK for: pid %d, ue %04x\n",harq_pid, UE->rnti);
     add_tail_nr_list(&sched_ctrl->retrans_dl_harq, harq_pid);
     harq->round++;
@@ -853,7 +861,7 @@ static NR_UE_harq_t *find_harq(frame_t frame, slot_t slot, NR_UE_info_t * UE, in
           frame,
           slot);
     remove_front_nr_list(&sched_ctrl->feedback_dl_harq);
-    handle_dl_harq(NULL, UE, pid, false, harq_round_max);
+    handle_dl_harq(NULL, UE, pid, false, true, harq_round_max);
     pid = sched_ctrl->feedback_dl_harq.head;
     if (pid < 0)
       return NULL;
@@ -917,7 +925,7 @@ void handle_nr_uci_pucch_0_1(module_id_t mod_id, frame_t frame, slot_t slot, con
         nr_timer_start(&sched_ctrl->tci_beam_switch);
         harq->start_tci_timer = false;
       }
-      handle_dl_harq(nrmac, UE, pid, success, nrmac->dl_bler.harq_round_max);
+      handle_dl_harq(nrmac, UE, pid, success, harq_confidence == 1, nrmac->dl_bler.harq_round_max);
       if (is_ra) {
         bool ue_rejected = nr_check_Msg4_MsgB_Ack(mod_id, frame, slot, UE, success);
         if (ue_rejected) {
@@ -942,6 +950,9 @@ void handle_nr_uci_pucch_0_1(module_id_t mod_id, frame_t frame, slot_t slot, con
   if (uci_01->pduBitmap & 0x1) {
     if (uci_01->sr.sr_indication && uci_01->sr.sr_confidence_level == 0 && uci_01->ul_cqi >= 148) {
       // SR detected with SNR >= 10dB
+      // LatSeq: log only the first SR of a request (rising edge), repeated SRs wait for the same grant
+      if (!sched_ctrl->SR)
+        LATSEQ_P("U mac.sr--mac.ul_grant", "sr_fm=%ld.sr_sl=%ld.ul_cqi=%ld:rnti=%ld:crnti=%ld", frame, slot, uci_01->ul_cqi, UE->rnti, UE->rnti);
       sched_ctrl->SR |= true;
       LOG_D(NR_MAC, "SR UE %04x ul_cqi %d\n", uci_01->rnti, uci_01->ul_cqi);
     }
@@ -999,7 +1010,7 @@ void handle_nr_uci_pucch_2_3_4(module_id_t mod_id, frame_t frame, slot_t slot, c
         nr_timer_start(&sched_ctrl->tci_beam_switch);
         harq->start_tci_timer = false;
       }
-      handle_dl_harq(nrmac, UE, pid, success, nrmac->dl_bler.harq_round_max);
+      handle_dl_harq(nrmac, UE, pid, success, uci_234->harq.harq_crc == 1, nrmac->dl_bler.harq_round_max);
     }
     free(uci_234->harq.harq_payload);
   }

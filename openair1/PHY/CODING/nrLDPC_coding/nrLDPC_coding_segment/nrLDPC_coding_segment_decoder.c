@@ -104,6 +104,8 @@ typedef struct nrLDPC_decoding_parameters_s {
   uint8_t *c;
   bool *decodeSuccess;
 
+  uint8_t decode_iterations;
+
   task_ans_t *ans;
 
   time_stats_t *p_ts_deinterleave;
@@ -217,6 +219,8 @@ static void nr_process_decode_segment(void *arg)
   }
   stop_meas(rdata->p_ts_ldpc_decode);
 
+  rdata->decode_iterations = decodeIterations;
+
   // Task completed
   completed_task_ans(rdata->ans);
 }
@@ -299,12 +303,14 @@ int32_t nrLDPC_coding_decoder(nrLDPC_slot_decoding_parameters_t *nrLDPC_slot_dec
   // Execute thread pool tasks
   join_task_ans(t_info.ans);
 
+  int seg_idx = 0;
   for (int pusch_id = 0; pusch_id < nrLDPC_slot_decoding_parameters->nb_TBs; pusch_id++) {
     nrLDPC_TB_decoding_parameters_t *nrLDPC_TB_decoding_parameters = &nrLDPC_slot_decoding_parameters->TBs[pusch_id];
-    for (int r = 0; r < nrLDPC_TB_decoding_parameters->C; r++) {
+    for (int r = 0; r < nrLDPC_TB_decoding_parameters->C; r++, seg_idx++) {
       if (nrLDPC_TB_decoding_parameters->segments[r].decodeSuccess) {
         *nrLDPC_TB_decoding_parameters->processedSegments = *nrLDPC_TB_decoding_parameters->processedSegments + 1;
       }
+      nrLDPC_TB_decoding_parameters->segments[r].decode_iterations = arr[seg_idx].decode_iterations;
     }
   }
   return 0;

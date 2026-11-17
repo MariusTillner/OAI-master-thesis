@@ -51,7 +51,8 @@ typedef struct {
   int status_triggered;
 
   /* runtime tx */
-  int tx_next;
+  int tx_next;       /* next SN to assign (SNs are assigned when an SDU enters the RLC buffer) */
+  int tx_next_sent;  /* next SN to submit to lower layer for the first time (POLL_SN, window check) */
   int tx_next_ack;
   int poll_sn;
   int pdu_without_poll;

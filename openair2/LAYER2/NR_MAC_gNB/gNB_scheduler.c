@@ -180,7 +180,11 @@ void gNB_dlsch_ulsch_scheduler(module_id_t module_idP, frame_t frame, slot_t slo
   if (gNB->print_ue_stats && (wait_prach_completed || get_softmodem_params()->phy_test) && (slot == 0) && (frame & 127) == 0) {
     char stats_output[32656] = {0};
     dump_mac_stats(gNB, stats_output, sizeof(stats_output), true);
-    LOG_I(NR_MAC, "Frame.Slot %d.%d\n%s\n", frame, slot, stats_output);
+    // wall-clock time of this stats dump (CLOCK_REALTIME, same clock as irtt/iperf), so the periodic
+    // UE stats can be mapped to the measurement timeline; taken when the scheduler runs for this slot
+    struct timespec stats_ts;
+    clock_gettime(CLOCK_REALTIME, &stats_ts);
+    LOG_I(NR_MAC, "Frame.Slot %d.%d wallclock %ld.%06ld\n%s\n", frame, slot, (long)stats_ts.tv_sec, stats_ts.tv_nsec / 1000, stats_output);
 
     // TODO: this should be replaced with a size() operation on connected_ue_list
     int num_ue = 0;

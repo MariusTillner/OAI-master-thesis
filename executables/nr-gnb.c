@@ -42,6 +42,7 @@
 #include <unistd.h>
 #include "common/utils/LOG/log.h"
 #include "common/utils/system.h"
+#include "common/utils/LATSEQ/latseq.h"
 #include "PHY/NR_ESTIMATION/nr_ul_estimation.h"
 #include "openair1/PHY/NR_TRANSPORT/nr_dlsch.h"
 #include "openair1/PHY/NR_TRANSPORT/nr_ulsch.h"
@@ -92,6 +93,8 @@ static void tx_func(processingData_L1tx_t *info)
   clear_slot_beamid(gNB, slot_tx);
 
   nfapi_nr_slot_indication_scf_t ind = {.sfn = frame_tx, .slot = slot_tx};
+  // UL view: fm.sl is the RX slot whose PUSCH processing waits for this scheduler run (of TX slot tx_fm.tx_sl)
+  LATSEQ_P("U phy.sched_start--phy.sched_end", "tx_fm=%ld.tx_sl=%ld::fm=%ld.sl=%ld", frame_tx, slot_tx, frame_rx, slot_rx);
   start_meas(&gNB->slot_indication_stats);
   // this variable is very big (multiple MB), so we put it into static storage
   // to not overflow the stack while still having it in local (function) scope
@@ -99,6 +102,7 @@ static void tx_func(processingData_L1tx_t *info)
   static NR_Sched_Rsp_t sched_response;
   ifi->NR_slot_indication(&ind, &sched_response);
   stop_meas(&gNB->slot_indication_stats);
+  LATSEQ_P("U phy.sched_end--phy.rx_start", "tx_fm=%ld.tx_sl=%ld::fm=%ld.sl=%ld", frame_tx, slot_tx, frame_rx, slot_rx);
 
   info->gNB = gNB;
 
@@ -180,6 +184,8 @@ static void rx_func(processingData_L1_t *info)
   int rx_slot_type = nr_slot_select(cfg, frame_rx, slot_rx);
   if (rx_slot_type == NR_UPLINK_SLOT || rx_slot_type == NR_MIXED_SLOT) {
     LOG_D(NR_PHY, "%d.%d Starting RX processing\n", frame_rx, slot_rx);
+    // L1 RX thread picked up the job: sched_end -> rx_start is pure queueing (thread busy with previous slot)
+    LATSEQ_P("U phy.rx_start--phy.prach_pucch", "::fm=%ld.sl=%ld", frame_rx, slot_rx);
 
     // UE-specific RX processing for subframe n
     NR_UL_IND_t UL_INFO = {.frame = frame_rx, .slot = slot_rx, .module_id = gNB->Mod_id, .CC_id = gNB->CC_id};
@@ -420,6 +426,9 @@ void init_gNB()
 
     // Init module ID
     gNB->Mod_id = inst;
+
+    // Init transport block counter
+    gNB->global_ul_tb_id = 0;
 
     // Register MAC interface module
     AssertFatal((gNB->if_inst = NR_IF_Module_init(inst)) != NULL, "Cannot register interface");

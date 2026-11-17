@@ -53,6 +53,7 @@
 
 #include "T.h"
 #include "nr_phy_common.h"
+#include "common/utils/LATSEQ/latseq.h"
 
 //#define DEBUG_NR_PUCCH_RX 1
 

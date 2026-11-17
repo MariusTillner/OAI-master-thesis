@@ -40,6 +40,7 @@
 #include <syscall.h>
 // #define DEBUG_ULSCH_DECODING
 // #define gNB_DEBUG_TRACE
+#include "common/utils/LATSEQ/latseq.h"
 
 #define OAI_UL_LDPC_MAX_NUM_LLR 27000 // 26112 // NR_LDPC_NCOL_BG1*NR_LDPC_ZMAX = 68*384
 // #define DEBUG_CRC
@@ -289,6 +290,7 @@ int nr_ulsch_decoding(PHY_VARS_gNB *phy_vars_gNB,
     uint32_t offset = 0;
     for (int r = 0; r < TB_parameters.C; r++) {
       nrLDPC_segment_decoding_parameters_t nrLDPC_segment_decoding_parameters = TB_parameters.segments[r];
+      int decode_iter = nrLDPC_segment_decoding_parameters.decode_iterations;
       // Copy c to b in case of decoding success
       if (nrLDPC_segment_decoding_parameters.decodeSuccess) {
         memcpy(harq_process->b + offset,
@@ -300,6 +302,7 @@ int nr_ulsch_decoding(PHY_VARS_gNB *phy_vars_gNB,
       }
       offset += ((harq_process->K >> 3) - (harq_process->F >> 3) - ((harq_process->C > 1) ? 3 : 0));
 
+      LATSEQ_P("U phy.CB_dec--phy.TB_dec", "seg=%ld.dec_succ=%ld.iter=%ld:rnti=%ld:fm=%ld.sl=%ld.hqpid=%ld", r, nrLDPC_segment_decoding_parameters.decodeSuccess, decode_iter, ulsch->rnti, ulsch->frame, nr_tti_rx, ulsch->harq_pid);
       merge_meas(&phy_vars_gNB->ts_deinterleave, &nrLDPC_segment_decoding_parameters.ts_deinterleave);
       merge_meas(&phy_vars_gNB->ts_rate_unmatch, &nrLDPC_segment_decoding_parameters.ts_rate_unmatch);
       merge_meas(&phy_vars_gNB->ts_ldpc_decode, &nrLDPC_segment_decoding_parameters.ts_ldpc_decode);

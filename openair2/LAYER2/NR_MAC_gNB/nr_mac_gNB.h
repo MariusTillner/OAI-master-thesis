@@ -517,6 +517,9 @@ typedef struct NR_UE_harq {
   bool start_tci_timer;
   /// sched_pdsch keeps information on MCS etc used for the initial transmission
   NR_sched_pdsch_t sched_pdsch;
+
+  // transport block identifier, used to identify the TB in the HARQ process
+  uint64_t dl_tb_id;
 } NR_UE_harq_t;
 
 //! fixme : need to enhace for the multiple TB CQI report
@@ -835,6 +838,11 @@ typedef struct {
   nfapi_nr_dl_tti_request_body_t *dl_req;
   /// TX_data request holds the actual data
   nfapi_nr_tx_data_request_t *TX_req;
+  /// LatSeq only: scheduler context of the allocation currently post-processed
+  /// number of UEs eligible for a new DL transmission in this slot (PF candidates)
+  int ls_n_ue_cand;
+  /// contiguous PRBs still free for this UE when it was allocated
+  int ls_rbs_avail;
 } post_process_pdsch_t;
 
 typedef struct {
@@ -1010,6 +1018,9 @@ typedef struct gNB_MAC_INST_s {
 
   dlul_mac_stats_t mac_stats;
   uint64_t num_scheduled_prach_rx;
+
+  // global TB identifier for HARQ processes, incremented for each new TB
+  int64_t global_tb_id;
 } gNB_MAC_INST;
 
 #endif /*__LAYER2_NR_MAC_GNB_H__ */
