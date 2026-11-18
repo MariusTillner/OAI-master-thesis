@@ -223,7 +223,7 @@ static void reassemble_and_deliver(nr_rlc_entity_am_t *entity, int sn)
     return;
 
   /* deliver */
-  LATSEQ_P("U rlc.reassembled--pdcp.hdr_dec", "rlc_pkt_sz=%ld::sn=%ld", so, sn);
+  LATSEQ_P("U rlc.reassembled--pdcp.hdr_dec", "rlc_pkt_sz=%ld:rnti=%ld:sn=%ld", so, entity->common.ue_id, sn);
   entity->common.deliver_sdu(entity->common.deliver_sdu_data,
                              (nr_rlc_entity_t *)entity,
                              sdu, so);
@@ -408,7 +408,7 @@ static void process_control_pdu(nr_rlc_entity_am_t *entity,
       /* check that current nack is > previous nack and <= ack
        * if not then reject the control PDU
        */
-      LATSEQ_P("D rlc.nack--rlc.retx", "so_end=%ld::sn=%ld.so=%ld", cur_so_end, cur_nack_sn, cur_so_start);
+      LATSEQ_P("D rlc.nack--rlc.retx", "so_end=%ld:rnti=%ld:sn=%ld.so=%ld", cur_so_end, entity->common.ue_id, cur_nack_sn, cur_so_start);
       if (prev_nack_sn != -1) {
         cmp = sn_compare_tx(entity, cur_nack_sn, prev_nack_sn);
         if (cmp < 0
@@ -807,7 +807,7 @@ void nr_rlc_entity_am_recv_pdu(nr_rlc_entity_t *_entity,
   }
 
   data_size = size - decoder.byte;
-  LATSEQ_P("U rlc.dec--rlc.reassembled", "rlc_seg_sz=%ld::mrbuf=%ld.si=%ld.sn=%ld.so=%ld", data_size, buffer, si, sn, so);
+  LATSEQ_P("U rlc.dec--rlc.reassembled", "rlc_seg_sz=%ld:rnti=%ld:mrbuf=%ld.si=%ld.sn=%ld.so=%ld", data_size, entity->common.ue_id, buffer, si, sn, so);
 
   /* dicard PDU if no data */
   if (data_size <= 0) {
@@ -1664,7 +1664,7 @@ static int generate_retx_pdu(nr_rlc_entity_am_t *entity, char *buffer,
   entity->common.stats.txpdu_retx_pkts++;
   entity->common.stats.txpdu_retx_bytes += ret_size;
 
-  LATSEQ_P("D rlc.retx--mac.handover", "sdu_sz=%ld.req_sz=%ld.poll=%ld.rlc_rtx_ct=%ld.rlc_ref_ct=%ld::sn=%ld.so=%ld.rmbuf=%ld", sdu->size, size, p, sdu->sdu->retx_count, sdu->sdu->ref_count, sdu->sdu->sn, sdu->so, buffer);
+  LATSEQ_P("D rlc.retx--mac.handover", "sdu_sz=%ld.req_sz=%ld.poll=%ld.rlc_rtx_ct=%ld.rlc_ref_ct=%ld:rnti=%ld:sn=%ld.so=%ld.rmbuf=%ld", sdu->size, size, p, sdu->sdu->retx_count, sdu->sdu->ref_count, entity->common.ue_id, sdu->sdu->sn, sdu->so, buffer);
   return ret_size;
 //  return serialize_sdu(entity, sdu, buffer, size, p);
 }
@@ -1758,9 +1758,9 @@ static int generate_tx_pdu(nr_rlc_entity_am_t *entity, char *buffer, int size)
   int ret_size = serialize_sdu(entity, sdu, buffer, size, p);
   // req_sz: bytes MAC offered to this RLC entity, rlc_bs: bytes left in the RLC TX buffer after this PDU,
   // seg: SDU (segment) did not fit and was split
-  LATSEQ_P("D rlc.seg--mac.handover", "rlc_seg_sz=%ld.poll=%ld.req_sz=%ld.rlc_bs=%ld.seg=%ld::sn=%ld.so=%ld.rmbuf=%ld", ret_size, p, size, entity->common.bstatus.tx_size, pdu_size > size, sdu->sdu->sn, sdu->so, buffer);
-  LATSEQ_P("D rlc.seg--rlc.tpoll_exp", "poll=%ld::sn=%ld.so=%ld", p, sdu->sdu->sn, sdu->so);
-  LATSEQ_P("D rlc.seg--rlc.nack", "poll=%ld::sn=%ld.so=%ld", p, sdu->sdu->sn, sdu->so);
+  LATSEQ_P("D rlc.seg--mac.handover", "rlc_seg_sz=%ld.poll=%ld.req_sz=%ld.rlc_bs=%ld.seg=%ld:rnti=%ld:sn=%ld.so=%ld.rmbuf=%ld", ret_size, p, size, entity->common.bstatus.tx_size, pdu_size > size, entity->common.ue_id, sdu->sdu->sn, sdu->so, buffer);
+  LATSEQ_P("D rlc.seg--rlc.tpoll_exp", "poll=%ld:rnti=%ld:sn=%ld.so=%ld", p, entity->common.ue_id, sdu->sdu->sn, sdu->so);
+  LATSEQ_P("D rlc.seg--rlc.nack", "poll=%ld:rnti=%ld:sn=%ld.so=%ld", p, entity->common.ue_id, sdu->sdu->sn, sdu->so);
 
   entity->common.stats.txpdu_pkts++;
   entity->common.stats.txpdu_bytes += ret_size;
@@ -1878,7 +1878,7 @@ void nr_rlc_entity_am_recv_sdu(nr_rlc_entity_t *_entity,
   if (entity->common.avg_time_is_on)
     sdu->sdu->time_of_arrival = time_average_now();
 
-  LATSEQ_P("D rlc.buffer--rlc.seg", "dl_bs=%ld.rlc_pdu_sz=%ld::prbuf=%ld.sn=%ld", entity->common.bstatus.tx_size, complete_size, buffer, sdu->sdu->sn);
+  LATSEQ_P("D rlc.buffer--rlc.seg", "dl_bs=%ld.rlc_pdu_sz=%ld:rnti=%ld:prbuf=%ld.sn=%ld", entity->common.bstatus.tx_size, complete_size, entity->common.ue_id, buffer, sdu->sdu->sn);
 }
 
 /*************************************************************************/
@@ -1956,7 +1956,7 @@ static void check_t_poll_retransmit(nr_rlc_entity_am_t *entity)
           cur->sdu->sn, cur->so, cur->size, cur->sdu->retx_count);
 
     /* put in retransmit list */
-    LATSEQ_P("D rlc.tpoll_exp--rlc.retx", "sdu_sz=%ld::sn=%ld.so=%ld", cur->size, cur->sdu->sn, cur->so);
+    LATSEQ_P("D rlc.tpoll_exp--rlc.retx", "sdu_sz=%ld:rnti=%ld:sn=%ld.so=%ld", cur->size, entity->common.ue_id, cur->sdu->sn, cur->so);
     entity->retransmit_list = nr_rlc_tx_sdu_segment_list_add(entity,
                                   entity->retransmit_list, cur);
 

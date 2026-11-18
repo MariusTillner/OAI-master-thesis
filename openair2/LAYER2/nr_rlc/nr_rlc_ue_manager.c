@@ -177,6 +177,7 @@ void nr_rlc_ue_add_srb_rlc_entity(nr_rlc_ue_t *ue, int srb_id, nr_rlc_entity_t *
     }
 
     ue->srb0 = entity;
+    entity->ue_id = ue->ue_id;
 
     return;
   }
@@ -190,6 +191,7 @@ void nr_rlc_ue_add_srb_rlc_entity(nr_rlc_ue_t *ue, int srb_id, nr_rlc_entity_t *
   }
 
   ue->srb[srb_id] = entity;
+  entity->ue_id = ue->ue_id;
 }
 
 /* must be called with lock acquired */
@@ -209,4 +211,5 @@ void nr_rlc_ue_add_drb_rlc_entity(nr_rlc_ue_t *ue, int drb_id, nr_rlc_entity_t *
   }
 
   ue->drb[drb_id] = entity;
+  entity->ue_id = ue->ue_id;
 }

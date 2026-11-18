@@ -129,6 +129,7 @@ typedef struct nr_pdcp_entity_s {
   void *deliver_pdu_data;
 
   /* configuration variables */
+  ue_id_t ue_id;                /* UE ID of the PDCP UE context, logged by LatSeq */
   int rb_id;
   int pdusession_id;
   bool has_sdap_rx;

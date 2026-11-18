@@ -926,6 +926,14 @@ bool nr_rlc_update_id(int from_id, int to_id)
     return false;
   }
   ue->ue_id = to_id;
+  if (ue->srb0)
+    ue->srb0->ue_id = to_id;
+  for (int i = 0; i < sizeofArray(ue->srb); i++)
+    if (ue->srb[i])
+      ue->srb[i]->ue_id = to_id;
+  for (int i = 0; i < sizeofArray(ue->drb); i++)
+    if (ue->drb[i])
+      ue->drb[i]->ue_id = to_id;
   LOG_I(RLC, "Update old UE ID %d context to ID %d\n", from_id, to_id);
   /* re-establish RLC for SRB1: according to 5.3.7.4 of TS 38.331 */
   if (ue->srb[0]) {

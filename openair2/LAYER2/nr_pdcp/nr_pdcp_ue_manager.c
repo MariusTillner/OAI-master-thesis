@@ -173,6 +173,7 @@ void nr_pdcp_ue_add_srb_pdcp_entity(nr_pdcp_ue_t *ue, int srb_id, nr_pdcp_entity
   }
 
   ue->srb[srb_id] = entity;
+  entity->ue_id = ue->ue_id;
 }
 
 /* must be called with lock acquired */
@@ -192,6 +193,7 @@ void nr_pdcp_ue_add_drb_pdcp_entity(nr_pdcp_ue_t *ue, int drb_id, nr_pdcp_entity
   }
 
   ue->drb[drb_id] = entity;
+  entity->ue_id = ue->ue_id;
 }
 
 /* must be called with lock acquired */
